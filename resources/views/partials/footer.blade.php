@@ -1,2 +1,4 @@
-<hr>
-<footer class="text-center">Copyright - All Rigths Reserved</footer>
+<footer class="center">
+	<hr>
+	Copyright - All Rigths Reserved
+</footer>
