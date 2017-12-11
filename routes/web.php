@@ -18,3 +18,8 @@ Route::get('/', function () {
 Route::get('/backend', function() {
     return view('admin.index');
 });
+
+Route::resource('/backend/categories', 'CategoryController');
+Route::resource('/backend/items', 'ItemController');
+
+

@@ -1,6 +1,6 @@
 <header>
     <nav class="purple darken-4">
-        <div style="font-size: xx-large;">&nbsp Dashboard</div>
+        <div style="font-size: xx-large;">&nbsp @yield('title')</div>
     </nav>
     <ul class="side-nav fixed">
         <li>
@@ -43,8 +43,8 @@
         <li class="bold"><a href="#" class="waves-effect waves-teal"><i class="material-icons">pages</i>Pages</a></li>
         <li><a href="#" class="waves-effect waves-teal"><i class="material-icons">comment</i>Comments</a></li>
         <li><a href="#" class="waves-effect waves-teal"><i class="material-icons">format_quote</i>Tags</a></li>
-        <li class="bold"><a href="#" class="waves-effect waves-teal"><i class="material-icons">library_books</i>Categories</a></li>
-        <li class="bold"><a href="#" class="waves-effect waves-teal"><i class="material-icons">extension</i>Items</a></li>
+        <li class="bold"><a href="{{ route('categories.index') }}" class="waves-effect waves-teal"><i class="material-icons">library_books</i>Categories</a></li>
+        <li class="bold"><a href="{{ route('items.index') }}" class="waves-effect waves-teal"><i class="material-icons">extension</i>Items</a></li>
     </ul>
 
 </header>

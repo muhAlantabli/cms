@@ -1,4 +1,4 @@
 <footer>
-    <hr>
-    <div class="center">All Rights Reserved &reg;</div>
+	<hr>
+	<div class="center">All Rights Reserved &reg;</div>
 </footer>
