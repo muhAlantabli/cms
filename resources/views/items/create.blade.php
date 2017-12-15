@@ -11,21 +11,12 @@
 			{{ csrf_field() }}
 			<div class="col s12">
 				<div class="input-field" style="padding-top: 20px;">
-					<input type="text" id="title" name="title" class="validate" value="{{ $item->title or old('title') }}">
+					<input type="text" id="title" name="title" class="validate">
 					<label for="title">Title</label>
 															
 				</div>
 
-				<div class="input-field" style="padding-top: 20px;">
-				    <select class="icons" name="category_id">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($categories as $c)
-						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
-				      @endforeach
-				      
-				    </select>
-				    <label for="category_id">Category</label>
-				</div>
+				<input type="hidden" name="category_id" value="{{ $category_id }}" >
 
 				<div class="input-field" style="padding-top: 20px;">
 				    <select name="language_id">
@@ -44,22 +35,57 @@
 			        <input type="file" type="text" name="image" >
 			      </div>
 			      <div class="file-path-wrapper">
-			        <input class="file-path validate" value="{{ $item->image or old('image') }}">
+			        <input class="file-path validate">
 			      </div>
     			</div>
 
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
-					<textarea name="desc" id="desc">{{ $item->desc or old('desc') }}</textarea>
+					<textarea name="desc" id="desc"></textarea>
     			</div>
 				
 				<div style="padding-top: 20px;">
 					<label for="info">Information</label>
-					<textarea name="info" id="info">{{ $item->info or old('info') }}</textarea>
+					<textarea name="info" id="info"></textarea>
     			</div>
 
+    			@foreach($custom_fields as $custom_field)
+					@if($custom_field->type == 'integer')
+						<div class="input-field" style="padding-top: 20px;">
+							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
+							<input type="text" id="custom_field_value" name="custom_field_value" class="validate">
+							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
+						</div>
+					@elseif($custom_field->type == 'string')
+						<div class="input-field" style="padding-top: 20px;">
+							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
+							<input type="text" id="custom_field_value" name="custom_field_value" class="validate">
+							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
+						</div>
+
+					@elseif($custom_field->type == 'text')
+						<div style="padding-top: 20px;">
+							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
+							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
+							<textarea name="custom_field_value_t" id="custom_field_value"></textarea>
+		    			</div>
+
+		    		@elseif($custom_field->type == 'file')
+		    			<div class="file-field input-field"  style="padding-top: 20px;">
+		    			<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
+					      <div class="btn">
+					        <span>{{ $custom_field->field_key }}</span>
+					        <input type="file" type="text" name="custom_field_value_file" >
+					      </div>
+					      <div class="file-path-wrapper">
+					        <input class="file-path validate">
+					      </div>
+		    			</div>
+					@endif
+    			@endforeach
+
 				<div style="padding-top: 20px;">
-					<button type="submit" class="btn waves-effect waves-light large">Submit<i class="material-icons right">send</i></button>	
+					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 				</div>
 			</div>
 		</form>
@@ -78,6 +104,7 @@
     <script>
         CKEDITOR.replace('desc');
         CKEDITOR.replace('info');
+        CKEDITOR.replace('custom_field_value_t');
     </script>
 
 @endsection

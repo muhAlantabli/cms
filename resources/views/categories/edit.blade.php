@@ -7,8 +7,9 @@
 	<div class="container">
 		<h5>{{ $title }}</h5>
 
-		<form action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data">
+		<form action="{{ route('categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
 			{{ csrf_field() }}
+			{{ method_field('PUT') }}
 			<div class="col s12">
 				<div class="input-field" style="padding-top: 20px;">
 					<input type="text" id="title" name="title" class="validate" value="{{ $category->title or old('title') }}">
@@ -18,9 +19,9 @@
 
 				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="parent">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($categories_list as $c)
-						<option value="{{ $c->category_id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
+				      <option disabled selected>Choose your option</option>
+				      @foreach($categories as $c)
+						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
 				      @endforeach
 				      
 				    </select>
@@ -44,7 +45,8 @@
 			        <input type="file" type="text" name="image" >
 			      </div>
 			      <div class="file-path-wrapper">
-			        <input class="file-path validate" value="{{ $category->image or old('image') }}">
+			        <input class="file-path validate">
+			        <img src="/images/{{ $category->image }}" height="256" width="256">
 			      </div>
     			</div>
 
@@ -52,9 +54,10 @@
 					<label for="desc">Description</label>
 					<textarea name="desc" id="desc">{{ $category->desc or old('desc') }}</textarea>
     			</div>
+
 				
 				<div style="padding-top: 20px;">
-					<button type="submit" class="btn waves-effect waves-light large">Submit<i class="material-icons right">send</i></button>	
+					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 				</div>
 			</div>
 		</form>

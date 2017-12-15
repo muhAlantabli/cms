@@ -13,8 +13,7 @@
 					<th>#</th>
 					<th>Title</th>
 					<th>Parent</th>
-					<th></th>
-					<th></th>
+					<th>Url</th>
 					<th></th>
 				</tr>
 			</thead>
@@ -24,13 +23,10 @@
 					@foreach($categories as $category)
 					<tr>
 						<td>{{ $category->id }}</td>
-						<td>{{ $category->title }}</td>
-						<td>{{ $category->parent }}</td>
-						<td><a href="{{ route('categories.show', $category->id) }}"	class="waves-effect waves-light btn tiny">Show</a></td>
-						<td>
-						<a href="{{ route('categories.edit', $category->id) }}" class="waves-effect waves-light btn tiny">Update</a>
-						</td>
-						<td>
+						<td><a href="{{ route('categories.show', $category->id) }}"	class="waves-effect waves-light">{{ $category->title }}</a></td>
+						<td>{{ App\Category::where('id', $category->parent)->value('title') }}</td>
+						<td><a href="{{ url($category->url) }}">{{ $category->url }}</a></td>
+						<td class="right"> 
 						<form action="{{ route('categories.destroy', $category->id) }}" method="POST">
 							<input type="hidden" name="_method" value="DELETE">
     						<input type="hidden" name="_token" value="{{ csrf_token() }}">

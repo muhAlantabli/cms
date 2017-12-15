@@ -15,7 +15,6 @@
 					<th>Category</th>
 					<th></th>
 					
-					<th></th>
 				</tr>
 			</thead>
 
@@ -24,8 +23,8 @@
 					@foreach($items as $item)
 					<tr>
 						<td>{{ $item->id }}</td>
-						<td>{{ $item->title }}</td>
-						<td>{{ $item->category_id }}</td>
+						<td><a href="{{ route('items.show', $item->id) }}">{{ $item->title }}</a></td>
+						<td>{{ App\Category::where('id', $item->category_id)->value('title') }}</td>
 						<td class="right">
 						<form action="{{ route('items.destroy', $item->id) }}" method="POST">
 							<input type="hidden" name="_method" value="DELETE">
@@ -33,7 +32,6 @@
 							<button class="waves-effect waves-light btn red tiny" type="submit">Delete</button>	
 						</form>
 						</td>
-						<td class="right"><a href="{{ route('items.show', $item->id) }}"	class="waves-effect waves-light btn tiny">Show</a></td>
 						
 						
 					</tr>

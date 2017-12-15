@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use App\Category;
+use App\Item;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -54,6 +56,40 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web')
              ->namespace($this->namespace)
              ->group(base_path('routes/web.php'));
+
+        foreach(Category::all() as $category) {
+            foreach(Item::where('category_id', $category->id)->get() as $item) {
+                Route::get($category->url.'/'.$item->id, ['middleware' => 'web', 'as' => $category->title.'.'.$item->title, function() use ($category) {
+                        return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
+                    'page' => $category,
+                ]);
+                }]);
+            }
+
+
+
+            Route::get($category->url, ['middleware' => 'web', 'as' => $category->title, function() use ($category) {
+
+                $categories = Category::where('parent', $category->id)->get();
+
+                if(count($categories) == 0) {
+                    $items = Item::where('category_id', $category->id)->get();
+                    if(count($items) == 1) {
+                        return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
+                    'page' => $category,
+                ]);
+                    } else {
+                        return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
+                    'page' => $category,
+                ]);
+                    }
+                } else {
+                    return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
+                    'page' => $category,
+                ]);
+                }
+            }]);      
+        }
     }
 
     /**

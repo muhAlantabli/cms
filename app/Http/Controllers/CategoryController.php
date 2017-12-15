@@ -7,15 +7,14 @@ use App\Category;
 use App\Item;
 use App\Language;
 use DB;
+use Session;
+use App\Menu;
 
 class CategoryController extends Controller
 {
-
-    protected $categories;
-
     public function __construct()
     {
-        $this->categories = Category::all();
+        $this->middleware('auth');
     }
     /**
      * Display a listing of the resource.
@@ -24,8 +23,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //return $categories;
-        return view('categories.index')->withCategories($this->categories);
+        $categories = Category::all();
+        return view('categories.index')->withCategories($categories);
     }
 
     /**
@@ -33,13 +32,12 @@ class CategoryController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Category $category)
+    public function create()
     {
-        //return $category;
         $title = 'Create New Category';
-        $categories_list = $this->categories;
+        $categories = Category::all();
         $languages = Language::all();
-        return view('categories.form', compact('category', 'title', 'categories_list', 'languages'));
+        return view('categories.create', compact('category', 'title', 'categories_list', 'languages'));
     }
 
     /**
@@ -51,7 +49,7 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'title' => 'required|unique:categories',
+            'title' => 'required|unique:categories|max:10',
             'image' => 'required',
             'desc' => 'required'
         ]);
@@ -59,22 +57,21 @@ class CategoryController extends Controller
         $category = new Category;
         $category->parent = $request->input('parent');
         $category->title = $request->input('title');
-        
+        $url = '';
+        $category->url = $this->setUrl($request->input('parent'), $url).strtolower($request->input('title'));
 
         if($request->hasFile('image')) {
             $image = $request->file('image');
             $image_name = time()."-".$image->getClientOriginalExtension();
             $image->move('images', $image_name);
-            
             $category->image = $image_name;
         }
 
         $category->desc = $request->input('desc');
-        $category->created_by = 1;
-        $category->updated_by = 1;
+        $category->created_by = auth()->user()->id;
+        $category->updated_by = auth()->user()->id;
 
         $category->save();
-
         $category->languages()->attach($request->language_id);
 
         return redirect()->route('categories.index');
@@ -89,8 +86,9 @@ class CategoryController extends Controller
     public function show($id)
     {
         $category = Category::find($id);
-
-        return view('categories.show', compact('category'));
+        $items = Item::where('category_id', $category->id)->get();
+        $custom_fields = DB::table('category_custom_field')->where('category_id', '=', $id)->get();
+        return view('categories.show', compact('category', 'items', 'custom_fields'));
     }
 
     /**
@@ -102,15 +100,10 @@ class CategoryController extends Controller
     public function edit($id)
     {
         $category = Category::find($id);
-        $categories_list = $this->categories;
-        
-        //return $content;
+        $categories = Category::all();
         $title = 'Edit Category';
         $languages = Language::all();
-
-        //return $category;
-
-        return view('categories.update', compact('category', 'title', 'categories_list', 'languages'));
+        return view('categories.edit', compact('category', 'title', 'categories', 'languages'));
     }
 
     /**
@@ -122,38 +115,39 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-
-        return $request;
+        //return $request;
+        
         $this->validate($request, [
             'title' => 'unique:categories',
         ]);
-
+    
         $category = Category::find($id);
-        //return $category;
-        $category->parent = $request->input('parent');
-        $category->title = $request->input('title');
-        
-        if($request->image != $category->image) {
-            if($request->hasFile('image')) {
+        $parent = $category->parent;
+
+        $category->fill($request->only('title', 'parent', 'desc'));
+
+        $url = '';
+        if($request->has('title')) {
+            $category->url = 
+            $this->setUrl($request->has('parent') ? $request->input('parent') : $parent, $url).strtolower($request->input('title'));            
+        }
+
+        if($request->hasFile('image')) {
             $image = $request->file('image');
             $image_name = time()."-".$image->getClientOriginalExtension();
             $image->move('images', $image_name);
-            
             $category->image = $image_name;
         }
-        }
+        
 
-        $category->desc = $request->input('desc');
-        $category->created_by = 1;
-        $category->updated_by = 1;
+        //$category->desc = $request->input('desc');
+        $category->updated_by = auth()->user()->id;
 
         $category->save();
+        //$category->languages()->attach($request->language_id);
+        
 
-        //$category->fill($request->only())
-
-
-        return redirect()->route('categories.index');
-
+        return redirect()->route('categories.show', $category->id);
     }
 
     /**
@@ -164,22 +158,50 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
+        $menu = Menu::where('category_id', $id)->first();
+        if($menu) {
+            $menu->languages()->detach();
+            $menu->delete();
+        }
+
         $items = Item::where('category_id', $id)->get();
 
         foreach ($items as $item) {
+            DB::table('custom_field_item')->where('item_id', '=', $item->id)->delete();
             $item->languages()->detach();
             $item->delete();    
         }
         
-
+        DB::table('category_custom_field')->where('category_id', '=', $id)->delete();
+        
         $category = Category::find($id);
-
         $category->languages()->detach();
-
         $category->delete();
-
-
-
+        
         return redirect()->route('categories.index');
+    }
+
+
+    public function setUrl($id, $url)
+    {
+        $parent = Category::where('id', $id)->get();
+        //return $parent;
+        if(!count($parent)) {
+            return '';
+        }
+
+        if($parent[0]->url) {
+            return $parent[0]->url.'/';
+        }
+
+        if($url) {
+            $url = $url.'/'.strtolower($parent[0]->title);
+        } else {
+            $url = strtolower($parent[0]->title).'/';
+        }
+        
+        $this->setUrl($parent[0]->parent, $url);
+
+        return $url;
     }
 }
