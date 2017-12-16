@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 Route::get('/backend', function() {
     return view('admin.index');
-});
+})->middleware('auth');
 
 Route::resource('/backend/categories', 'CategoryController');
 

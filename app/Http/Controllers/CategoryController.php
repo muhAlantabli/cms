@@ -9,6 +9,7 @@ use App\Language;
 use DB;
 use Session;
 use App\Menu;
+use Baum\MoveNotPossibleException;
 
 class CategoryController extends Controller
 {
@@ -37,7 +38,7 @@ class CategoryController extends Controller
         $title = 'Create New Category';
         $categories = Category::all();
         $languages = Language::all();
-        return view('categories.create', compact('category', 'title', 'categories_list', 'languages'));
+        return view('categories.create', compact('category', 'title', 'categories', 'languages'));
     }
 
     /**
@@ -48,6 +49,26 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
+        if($request->has('parent_id')) {
+            $menu = Menu::where('category_id', $request->input('parent_id'))->first();
+            if($menu) {
+                if($menu->type != 'list_of_categories') {
+                    return redirect()->route('categories.index')->withErrors([
+                        'error' => 'You Can not add categories to this category'
+                    ]);
+                }
+            } else {
+                $items = Item::where('category_id', $request->input('parent_id'))->first();
+                if($items) {
+                    return redirect()->route('categories.index')->withErrors([
+                        'error' => 'You can not add Catgeory to this Category Parent.'
+                    ]);
+                }
+            }
+        }
+
+        
+        
         $this->validate($request, [
             'title' => 'required|unique:categories|max:10',
             'image' => 'required',
@@ -55,10 +76,10 @@ class CategoryController extends Controller
         ]);
 
         $category = new Category;
-        $category->parent = $request->input('parent');
+        
         $category->title = $request->input('title');
         $url = '';
-        $category->url = $this->setUrl($request->input('parent'), $url).strtolower($request->input('title'));
+        $category->url = $this->setUrl($request->input('parent_id'), $url).strtolower($request->input('title'));
 
         if($request->hasFile('image')) {
             $image = $request->file('image');
@@ -72,7 +93,13 @@ class CategoryController extends Controller
         $category->updated_by = auth()->user()->id;
 
         $category->save();
-        $category->languages()->attach($request->language_id);
+
+        $this->updateCategoryOrder($category, $request);            
+        $category->save();
+
+        $category->languages()->attach($request->input('language_id'));
+
+        Session::flash('success', 'This Category was successfully created.');
 
         return redirect()->route('categories.index');
     }
@@ -115,21 +142,30 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //return $request;
         
-        $this->validate($request, [
-            'title' => 'unique:categories',
-        ]);
-    
         $category = Category::find($id);
-        $parent = $category->parent;
 
-        $category->fill($request->only('title', 'parent', 'desc'));
+        if($request->input('title') != $category->title) {
+            $this->validate($request, [
+                'title' => 'unique:categories'
+            ]);
+        }
+
+        $parent_id = $category->parent_id;
+
+        $category->fill($request->only('title', 'parent_id', 'desc'));
 
         $url = '';
+        
         if($request->has('title')) {
             $category->url = 
-            $this->setUrl($request->has('parent') ? $request->input('parent') : $parent, $url).strtolower($request->input('title'));            
+            $this->setUrl($parent_id, $url).strtolower($request->input('title'));            
+        }
+
+
+        if($request->has('parent_id')) {
+            $category->url = 
+            $this->setUrl($request->input('parent_id'), $url).strtolower($request->input('title'));            
         }
 
         if($request->hasFile('image')) {
@@ -139,14 +175,16 @@ class CategoryController extends Controller
             $category->image = $image_name;
         }
         
-
-        //$category->desc = $request->input('desc');
         $category->updated_by = auth()->user()->id;
 
-        $category->save();
-        //$category->languages()->attach($request->language_id);
+        if($response = $this->updateCategoryOrder($category, $request)) {
+            return $response;
+        }    
         
-
+        
+        $category->save();
+        
+        Session::flash('success', 'This Category was successfully updated.');
         return redirect()->route('categories.show', $category->id);
     }
 
@@ -175,9 +213,17 @@ class CategoryController extends Controller
         DB::table('category_custom_field')->where('category_id', '=', $id)->delete();
         
         $category = Category::find($id);
+        foreach($category->children as $child) {
+            $child->makeRoot();
+            $url = '';
+            $this->setChildUrl($child, $url, $category->parent_id).strtolower($child->title);
+            $child->save();
+        }
+
         $category->languages()->detach();
         $category->delete();
         
+        Session::flash('success', 'This Category was successfully deleted.');
         return redirect()->route('categories.index');
     }
 
@@ -185,6 +231,7 @@ class CategoryController extends Controller
     public function setUrl($id, $url)
     {
         $parent = Category::where('id', $id)->get();
+        
         //return $parent;
         if(!count($parent)) {
             return '';
@@ -200,8 +247,36 @@ class CategoryController extends Controller
             $url = strtolower($parent[0]->title).'/';
         }
         
-        $this->setUrl($parent[0]->parent, $url);
+        $this->setUrl($parent[0]->parent_id, $url);
 
         return $url;
+    }
+
+    public function updateCategoryOrder(Category $category, Request $request)
+    {
+        if($request->has('parent_id')) {
+            try {
+                $category->updateOrder($request->input('parent_id'));
+            } catch (MoveNotPossibleException $e) {
+                return redirect()->route('categories.index')->withInput()->withErrors([
+                    'error' => 'Can not make an category child of itself.'
+                ]);
+            }
+        }
+    }
+
+    public function setChildUrl(Category $child, $url, $parent_id)
+    {
+        $child->url = $this->setUrl($parent_id, $url).strtolower($child->title);
+        $child->save();
+
+        foreach($child->children as $ch) {
+            $this->setChildUrl($ch, $url, $ch->parent_id);
+        }
+
+        if(!count($child->children)) {
+            return;
+        }
+
     }
 }

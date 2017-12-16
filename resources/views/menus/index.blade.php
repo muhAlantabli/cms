@@ -6,7 +6,13 @@
 @section('content')
 	<div class="row" style="padding-top: 50px;">
 		<div class="col s12">
-			<a class="waves-effect waves-light btn" href="{{ route('menus.create') }}">Create New Menu Item</a>
+			@if(auth()->user()->type == "admin")
+				<a class="waves-effect waves-light btn" href="{{ route('menus.create') }}">Create New Menu Item
+				</a>
+			@else
+				<a class="waves-effect waves-light btn" onclick="Materialize.toast('You can not link category to menu', 4000, 'rounded')">Create New Menu Item
+				</a>
+			@endif
 		<table class="bordered highlight">
 			<thead>
 				<tr>

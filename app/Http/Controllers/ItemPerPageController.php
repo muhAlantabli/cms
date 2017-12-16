@@ -9,11 +9,13 @@ class ItemPerPageController extends Controller
 {
    	public function show($page)
    	{
+      $url = $page->url;
+      
    		$item = Item::where('category_id', $page->id)->get();
             //return $item;
         if(count($item)) {
             $item = $item[0];
-            return view('pages.item_per_page', compact('item'));    
+            return view('pages.item_per_page', compact('item', 'url'));    
         } else {
             return view('pages.blank');
    	}

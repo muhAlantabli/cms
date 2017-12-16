@@ -12,7 +12,7 @@
 				<tr>
 					<th>#</th>
 					<th>Title</th>
-					<th>Parent</th>
+					
 					<th>Url</th>
 					<th></th>
 				</tr>
@@ -23,8 +23,8 @@
 					@foreach($categories as $category)
 					<tr>
 						<td>{{ $category->id }}</td>
-						<td><a href="{{ route('categories.show', $category->id) }}"	class="waves-effect waves-light">{{ $category->title }}</a></td>
-						<td>{{ App\Category::where('id', $category->parent)->value('title') }}</td>
+						<td><a href="{{ route('categories.show', $category->id) }}"	class="waves-effect waves-light">{{ $category->paddedTitle() }}</a></td>
+						
 						<td><a href="{{ url($category->url) }}">{{ $category->url }}</a></td>
 						<td class="right"> 
 						<form action="{{ route('categories.destroy', $category->id) }}" method="POST">

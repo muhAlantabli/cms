@@ -20,11 +20,22 @@
 				    <select class="icons" name="category_id">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($categories as $c)
-						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
+						<option value="{{ $c->id }}">{{ $c->paddedTitle() }}</option>
 				      @endforeach
 				      
 				    </select>
 				    <label for="category_id">Category</label>
+				</div>
+
+				<div class="input-field" style="padding-top: 20px;">
+				    <select name="type">
+				      <option value="" disabled selected>Choose your option</option>
+				      <option value="item_per_page">Item Per Page</option>
+				      <option value="list_of_items">List of Items</option>
+				      <option value="list_of_categories">List of Categories</option>
+				      <option value="parent">Parent</option>
+				    </select>
+				    <label for="type">Type</label>
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">
@@ -52,10 +63,10 @@
 				    </select>
 					</div>
 					<div class="col s4">
-					    <select name="orderPage">
+					    <select class="icons" name="orderPage">
 					      <option value="" disabled selected>Choose your option</option>
 					      @foreach($menuList as $menu_item)
-							<option value="{{ $menu_item->id }}">{{ $menu_item->paddedName() }}</option>
+							<option value="{{ $menu_item->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $menu_item->paddedName() }}</option>
 					      @endforeach
 					      
 					    </select>

@@ -7,4 +7,11 @@
     
     
     <title>CMS</title>
+    <script type="text/javascript" language="JavaScript">
+		function showError(message) {
+			alert('xxxxx');
+			Materialize.toast(message, 4000, 'rounded');
+		}	
+	</script>
+    
 </head>

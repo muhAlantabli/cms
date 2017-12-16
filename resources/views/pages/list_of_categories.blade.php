@@ -3,7 +3,14 @@
 
 @section('content')
 	<div class="container">
-		<div class="row">
+		<div class="row" style="padding-top: 20px;">
+			<div class="col s12">
+			        <a href="{{ url('/') }}" class="breadcrumb purple-text">Home </a>
+			        @foreach($urls as $url)
+				        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>
+				        <a href="{{ route(ucfirst($url)) }}" class="breadcrumb purple-text">{{ ucfirst($url) }}</a>
+			        @endforeach
+			</div>
 		@foreach($categories as $category)
 		<div class="col s4" style="width: 33.33%; height: 33.33%;">
 				<div class="card"">

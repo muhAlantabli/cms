@@ -85,10 +85,11 @@
 		</div>
 			
 	</div>
+	@if(auth()->user()->type == 'admin')
 	<div class="col s4 offset-s8">
 		<div class="card">
 			<div class="center" style="padding-top: 20px;">
-				<i>Custom Fields</i>
+				<i>Extra Catgeory Fields</i>
 			</div>
             <div class="card-content">
 			
@@ -126,6 +127,7 @@
           </div>
 		</div>
 	</div>
+	@endif
 	
 @endsection
 

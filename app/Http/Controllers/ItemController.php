@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Language;
 use App\Category;
 use DB;
+use App\Menu;
 
 class ItemController extends Controller
 {
@@ -48,11 +49,33 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
+        $menu = Menu::where('category_id', $request->input('category_id'))->first();
+        if($menu) {
+            if($menu->type == 'list_of_categories') {
+                return redirect()->route('categories.index')->withErrors([
+                    'error' => 'You Can not add items to this category'
+                ]);
+            } elseif($menu->type == 'item_per_page') {
+                $items = Item::where('category_id', $request->input('category_id'))->get();
+                if(count($items) >= 1) {
+                   return redirect()->route('categories.index')->withErrors([
+                    'error' => 'You Can not add items to this category'
+                ]); 
+                }
+            }
+        }
 
-        //return $request;
+        $parent = Category::where('id', $request->input('category_id'))->first();
+        if(count($parent->children)) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You can not add item to this Category Parent.'
+            ]);
+        }
+        
+        
         $this->validate($request, [
             'title' => 'required',
-            'language_id' => 'required',
+            
         ]);
 
         $item = new Item;
@@ -76,29 +99,34 @@ class ItemController extends Controller
 
         $item->languages()->attach($request->language_id);
 
-        if($request->has('custom_field_value')) {
-            DB::table('custom_field_item')->insert([
-                'item_id' => $item->id,
-                'value' => $request->input('custom_field_value'),
-                'field_id' =>  $request->input('field_id')
-            ]);
-        } elseif ($request->hasFile('custom_field_value_file')) {
-            $file = $request->file('file');
-            $file_name = time()."-".$image->getClientOriginalExtension();
-            $file->move('files', $file_name);
-            DB::table('custom_field_item')->insert([
-                'item_id' => $item->id,
-                'value' => $file_name,
-                'field_id' =>  $request->input('field_id')
-            ]);
-            
-        } elseif($request->has('custom_field_value_t')) {
-            DB::table('custom_field_item')->insert([
-                'item_id' => $item->id,
-                'value' => $request->input('custom_field_value_t'),
-                'field_id' =>  $request->input('field_id')
-            ]);
+        if($request->input('length') > 0) {
+            for($i =0; $i < $request->input('length'); $i++) {
+                if($request->has('custom_field_value'.$i)) {
+                    DB::table('custom_field_item')->insert([
+                        'item_id' => $item->id,
+                        'value' => $request->input('custom_field_value'.$i),
+                        'field_id' =>  $request->input('field_id'.$i)
+                    ]);
+                } elseif ($request->hasFile('custom_field_value_file'.$i)) {
+                    $file = $request->file('file');
+                    $file_name = time()."-".$image->getClientOriginalExtension();
+                    $file->move('files', $file_name);
+                    DB::table('custom_field_item')->insert([
+                        'item_id' => $item->id,
+                        'value' => $file_name,
+                        'field_id' =>  $request->input('field_id'.$i)
+                    ]);
+                    
+                } elseif($request->has('custom_field_value_t'.$i)) {
+                    DB::table('custom_field_item')->insert([
+                        'item_id' => $item->id,
+                        'value' => $request->input('custom_field_value_t'.$i),
+                        'field_id' =>  $request->input('field_id'.$i)
+                    ]);
+                }
+            }
         }
+        
 
         return redirect()->route('categories.show', $item->category_id);
     }
@@ -114,6 +142,7 @@ class ItemController extends Controller
         $custom_fields = DB::table('category_custom_field')
                         ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                         ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
+                        ->where(['category_custom_field.category_id' => $item->category_id, 'custom_field_item.item_id' => $item->id])
                         ->get();
         return view('items.show', compact('item', 'custom_fields'));
     }
@@ -133,6 +162,7 @@ class ItemController extends Controller
         $custom_fields = DB::table('category_custom_field')
                     ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                     ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
+                    ->where(['category_custom_field.category_id' => $item->category_id, 'custom_field_item.item_id' => $item->id])
                     ->get();
         $title = "Edit Item";
         //return $custom_field;
@@ -167,63 +197,68 @@ class ItemController extends Controller
             $item->languages()->sync($request->language_id);
         }
 
-        if($request->has('custom_field_value')) {
-            $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'))->get();
-            if(count($query)) {
-                DB::table('custom_field_item')->where('item_id', '=', $item->id)
-                ->where('field_id', '=', $request->input('field_id'))->update([
-                    'value' => $request->input('custom_field_value'),
-                ]);
-            } else {
-                DB::table('custom_field_item')->insert([
-                'item_id' => $item->id,
-                'value' => $request->input('custom_field_value'),
-                'field_id' =>  $request->input('field_id')
-            ]);
+        if($request->input('length') > 0) {
+            for($i =0; $i < $request->input('length'); $i++) {
+                if($request->has('custom_field_value'.$i)) {
+                    $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'.$i))->get();
+                    if(count($query)) {
+                        DB::table('custom_field_item')->where('item_id', '=', $item->id)
+                        ->where('field_id', '=', $request->input('field_id'.$i))->update([
+                            'value' => $request->input('custom_field_value'.$i),
+                        ]);
+                    } else {
+                        DB::table('custom_field_item')->insert([
+                        'item_id' => $item->id,
+                        'value' => $request->input('custom_field_value'.$i),
+                        'field_id' =>  $request->input('field_id'.$i)
+                    ]);
+                    }
+                    
+                } elseif ($request->hasFile('custom_field_value_file')) {
+                    $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'.$i))->get();
+                    if(count($query)) {
+                        $file = $request->file('file');
+                        $file_name = time()."-".$image->getClientOriginalExtension();
+                        $file->move('files', $file_name);
+                        DB::table('custom_field_item')->where('item_id', '=', $item->id)
+                        ->where('field_id', '=', $request->input('field_id'.$i))->update([
+                            
+                            'value' => $file_name,
+                            
+                        ]);
+                    } else {
+                        $file = $request->file('file');
+                        $file_name = time()."-".$image->getClientOriginalExtension();
+                        $file->move('files', $file_name);
+                        DB::table('custom_field_item')->insert([
+                            'item_id' => $item->id,
+                            'value' => $file_name,
+                            'field_id' =>  $request->input('field_id'.$i)
+                        ]);
+                    }
+                    
+                    
+                } elseif($request->has('custom_field_value_t'.$i)) {
+                    $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'.$i))->get();
+                    if(count($query)) {
+                        DB::table('custom_field_item')->where('item_id', '=', $item->id)
+                        ->where('field_id', '=', $request->input('field_id'.$i))->update([
+                            
+                            'value' => $request->input('custom_field_value_t'.$i),
+                            
+                        ]);
+                    } else {
+                        DB::table('custom_field_item')->insert([
+                            'item_id' => $item->id,
+                            'value' => $request->input('custom_field_value_t'.$i),
+                            'field_id' =>  $request->input('field_id'.$i)
+                        ]);
+                    }
+                    
+                }
             }
-            
-        } elseif ($request->hasFile('custom_field_value_file')) {
-            $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'))->get();
-            if(count($query)) {
-                $file = $request->file('file');
-                $file_name = time()."-".$image->getClientOriginalExtension();
-                $file->move('files', $file_name);
-                DB::table('custom_field_item')->where('item_id', '=', $item->id)
-                ->where('field_id', '=', $request->input('field_id'))->update([
-                    
-                    'value' => $file_name,
-                    
-                ]);
-            } else {
-                $file = $request->file('file');
-                $file_name = time()."-".$image->getClientOriginalExtension();
-                $file->move('files', $file_name);
-                DB::table('custom_field_item')->insert([
-                    'item_id' => $item->id,
-                    'value' => $file_name,
-                    'field_id' =>  $request->input('field_id')
-                ]);
-            }
-            
-            
-        } elseif($request->has('custom_field_value_t')) {
-            $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'))->get();
-            if(count($query)) {
-                DB::table('custom_field_item')->where('item_id', '=', $item->id)
-                ->where('field_id', '=', $request->input('field_id'))->update([
-                    
-                    'value' => $request->input('custom_field_value_t'),
-                    
-                ]);
-            } else {
-                DB::table('custom_field_item')->insert([
-                    'item_id' => $item->id,
-                    'value' => $request->input('custom_field_value_t'),
-                    'field_id' =>  $request->input('field_id')
-                ]);
-            }
-            
         }
+        
 
         
         return redirect()->route('categories.show', $item->category_id);

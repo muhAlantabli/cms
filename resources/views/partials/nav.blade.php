@@ -5,4 +5,4 @@
         @include('partials.navigation', $menus)
       </ul>
     </div>
-  </nav>
+ </nav>

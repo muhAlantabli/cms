@@ -7,7 +7,7 @@
 		<div class="col s8">
 			<ul class="collapsible" data-collapsible="accordion">
 				<li>
-					<div class="collapsible-header"><strong>Title</strong></div>
+					<div class="collapsible-header active"><strong>Title</strong></div>
 					<div class="collapsible-body">{{ $item->title }}</div>
 				</li>
 

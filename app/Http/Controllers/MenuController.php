@@ -8,6 +8,7 @@ use App\Category;
 use App\Language;
 use Baum\MoveNotPossibleException;
 use App\Item;
+use Session;
 
 class MenuController extends Controller
 {
@@ -52,16 +53,16 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        //return $request;
-        if(auth()->user()->type == "admin") {
+        
             $this->validate($request, [
             'name' => 'required',
+            'category_id' => 'required'
             ]);
 
             $menu = new Menu;
             $menu->name = $request->input('name');
             $menu->category_id = $request->input('category_id');
-            $menu->type = $request->has('category_id') ? $this->getMenuType($request->input('category_id')) : "parent";
+            $menu->type = $request->input('type');
 
             $menu->save();
 
@@ -71,12 +72,9 @@ class MenuController extends Controller
 
             $menu->save();
 
+            Session::flash('success', 'This Menu item was successfully created.');
             return redirect()->route('menus.index');    
-        } else {
-            return redirect()->route('menus.index')->withErrors([
-                'error' => 'You can not link category to menu'
-            ]);
-        }
+        
         
 
     }
@@ -117,16 +115,17 @@ class MenuController extends Controller
      */
     public function update(Request $request, Menu $menu)
     {
-        $menu->name = $request->input('name');
-        $menu->category_id = $request->input('category_id');
-
-
-        $menu->save();
+        $this->validate($request, [
+            'category_id' => 'required'
+        ]);
+        
+        $menu->fill($request->only('name', 'type', 'category_id'))->save();
 
         if($response = $this->updateMenuOrder($menu, $request)) {
             return $response;
         }
 
+        Session::flash('success', 'This Menu item was successfully updated.');
         return redirect()->route('menus.index');
 
     }
@@ -152,6 +151,7 @@ class MenuController extends Controller
 
         $menu->delete();
 
+        Session::flash('success', 'This Menu item was successfully deleted.');
         return redirect()->route('menus.index');
     }
 
@@ -159,7 +159,7 @@ class MenuController extends Controller
     {
         $type= "";
 
-        $categories = Category::where('parent', $id)->get();
+        $categories = Category::where('parent_id', $id)->get();
 
         if(count($categories) == 0) {
             $items = Item::where('category_id', $id)->get();

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use App\Category;
 use App\Item;
+use App\Menu;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -59,9 +60,9 @@ class RouteServiceProvider extends ServiceProvider
 
         foreach(Category::all() as $category) {
             foreach(Item::where('category_id', $category->id)->get() as $item) {
-                Route::get($category->url.'/'.$item->id, ['middleware' => 'web', 'as' => $category->title.'.'.$item->title, function() use ($category) {
-                        return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
-                    'page' => $category,
+                Route::get($category->url.'/'.$item->id, ['middleware' => 'web', 'as' => $category->title.'.'.$item->title, function() use ($item) {
+                        return $this->app->call('App\Http\Controllers\PageController@show', [
+                    'page' => $item,
                 ]);
                 }]);
             }
@@ -70,11 +71,12 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::get($category->url, ['middleware' => 'web', 'as' => $category->title, function() use ($category) {
 
-                $categories = Category::where('parent', $category->id)->get();
+                $categories = Category::where('parent_id', $category->id)->get();
+                $menu = Menu::where('category_id', $category->id)->first();
 
                 if(count($categories) == 0) {
                     $items = Item::where('category_id', $category->id)->get();
-                    if(count($items) == 1) {
+                    if(count($items) == 1 && $menu->type == 'item_per_page') {
                         return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
                     'page' => $category,
                 ]);

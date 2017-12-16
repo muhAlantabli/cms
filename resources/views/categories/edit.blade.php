@@ -18,19 +18,19 @@
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">
-				    <select class="icons" name="parent">
+				    <select class="icons" name="parent_id">
 				      <option disabled selected>Choose your option</option>
 				      @foreach($categories as $c)
-						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
+						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->paddedTitle() }}</option>
 				      @endforeach
 				      
 				    </select>
-				    <label for="parent">Parent</label>
+				    <label for="parent_id">Parent</label>
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">
 				    <select name="language_id">
-				      <option value="" disabled selected>Choose your option</option>
+				      <option value="">Choose your option</option>
 				      @foreach($languages as $language)
 						<option value="{{ $language->id }}">{{ $language->name }}</option>
 				      @endforeach

@@ -17,14 +17,14 @@
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">
-				    <select class="icons" name="parent">
+				    <select class="icons" name="parent_id">
 				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($categories_list as $c)
-						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
+				      @foreach($categories as $c)
+						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->paddedTitle() }}</option>
 				      @endforeach
 				      
 				    </select>
-				    <label for="parent">Parent</label>
+				    <label for="parent_id">Parent</label>
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">

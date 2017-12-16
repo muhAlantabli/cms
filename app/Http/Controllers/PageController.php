@@ -5,34 +5,30 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Category;
 use App\Item;
+use DB;
+
 class PageController extends Controller
 {
-   	public function show($page)
-   	{
-   		
-   		//return view('pages.list_of_items', compact('items'));
-   		//return $page;
-   		//$items = Item::where('category_id', $page->id)->get();
-      //return view('pages.list_of_items', compact('items'));
-   		if($page->type == "item_per_page") {
-            $item = Item::where('category_id', $page->id)->get();
+    public function show($page)
+    {
+        $category_url = Category::where('id', $page->category_id)->value('url');
+
+        $urls = explode('/', $category_url);
+        //return $urls;
+
+        $custom_fields = DB::table('category_custom_field')
+            ->select('category_custom_field.id', 'category_custom_field.field_key',
+             'custom_field_item.value')
+            ->join('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
+            ->where(['category_custom_field.category_id' => $page->category_id, 'custom_field_item.item_id' => $page->id])
+            ->get();
+
             //return $item;
-            if(count($item)) {
-                $item = $item[0];
-                return view('pages.item_per_page', compact('item'));    
-            } else {
-                return view('pages.blank');    
-            }
+        if($page) {
             
-
-        } elseif($page->type == "list_of_items") {
-            $items = Item::where('category_id', $page->id)->get();
-            return view('pages.list_of_items', compact('items'));
-
+            return view('pages.page', compact('page', 'custom_fields', 'urls'));    
         } else {
-            $categories = Category::where('parent', $page->id)->get();
-            return view('pages.list_of_categories', compact('categories'));
-
-        }
-   	}
+            return view('pages.blank');
+    }
+}
 }

@@ -49,40 +49,42 @@
 					<textarea name="info" id="info"></textarea>
     			</div>
 
-    			@foreach($custom_fields as $custom_field)
-					@if($custom_field->type == 'integer')
+				<input type="hidden" name="length" value="{{ count($custom_fields) }}">
+
+    			@for($i =0; $i < count($custom_fields); $i++)
+					@if($custom_fields[$i]->type == 'integer')
 						<div class="input-field" style="padding-top: 20px;">
-							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
-							<input type="text" id="custom_field_value" name="custom_field_value" class="validate">
-							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
+							<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
+							<input type="text" id="custom_field_value{{ $i }}" name="custom_field_value{{ $i }}" class="validate">
+							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
 						</div>
-					@elseif($custom_field->type == 'string')
+					@elseif($custom_fields[$i]->type == 'string')
 						<div class="input-field" style="padding-top: 20px;">
-							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
-							<input type="text" id="custom_field_value" name="custom_field_value" class="validate">
-							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
+							<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
+							<input type="text" id="custom_field_value{{ $i }}" name="custom_field_value{{ $i }}" class="validate">
+							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
 						</div>
 
-					@elseif($custom_field->type == 'text')
+					@elseif($custom_field[$i]->type == 'text')
 						<div style="padding-top: 20px;">
-							<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
-							<label for="custom_field_value">{{ $custom_field->field_key }}</label>
-							<textarea name="custom_field_value_t" id="custom_field_value"></textarea>
+							<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
+							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
+							<textarea name="custom_field_value_t{{ $i }}" id="custom_field_value{{ $i }}"></textarea>
 		    			</div>
 
-		    		@elseif($custom_field->type == 'file')
+		    		@elseif($custom_fields[$i]->type == 'file')
 		    			<div class="file-field input-field"  style="padding-top: 20px;">
-		    			<input type="hidden" name="field_id" value="{{ $custom_field->id }}" >
+		    			<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
 					      <div class="btn">
-					        <span>{{ $custom_field->field_key }}</span>
-					        <input type="file" type="text" name="custom_field_value_file" >
+					        <span>{{ $custom_fields[$i]->field_key }}</span>
+					        <input type="file" type="text" name="custom_field_value_file{{ $i }}" >
 					      </div>
 					      <div class="file-path-wrapper">
 					        <input class="file-path validate">
 					      </div>
 		    			</div>
 					@endif
-    			@endforeach
+    			@endfor
 
 				<div style="padding-top: 20px;">
 					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
