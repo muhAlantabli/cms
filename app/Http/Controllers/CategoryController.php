@@ -70,7 +70,7 @@ class CategoryController extends Controller
         
         
         $this->validate($request, [
-            'title' => 'required|unique:categories|max:10',
+            'title' => 'required|unique:categories',
             'image' => 'required',
             'desc' => 'required'
         ]);

@@ -22,8 +22,8 @@
         <li><a href="#" class="waves-effect waves-teal">Languages</a></li>
         
         <li class="bold"><a href="{{ route('menus.index') }}" class="waves-effect waves-teal">Menus</a></li>
-        <li><a href="#" class="waves-effect waves-teal">Comments</a></li>
-        <li><a href="#" class="waves-effect waves-teal">Tags</a></li>
+        <li><a href="{{ route('comments.index') }}" class="waves-effect waves-teal">Comments</a></li>
+        <li><a href="{{ route('tags.index') }}" class="waves-effect waves-teal">Tags</a></li>
         <li class="bold"><a href="{{ route('categories.index') }}" class="waves-effect waves-teal">Categories</a></li>
         
     </ul>

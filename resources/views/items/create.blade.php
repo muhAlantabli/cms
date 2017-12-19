@@ -19,6 +19,17 @@
 				<input type="hidden" name="category_id" value="{{ $category_id }}" >
 
 				<div class="input-field" style="padding-top: 20px;">
+				    <select name="tags[]" multiple="multiple">
+				      <option value="" disabled selected>Choose your option</option>
+				      @foreach($tags as $tag)
+						<option value="{{ $tag->id }}">{{ $tag->name }}</option>
+				      @endforeach
+				      
+				    </select>
+				    <label for="tags">Tags</label>
+				</div>
+
+				<div class="input-field" style="padding-top: 20px;">
 				    <select name="language_id">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($languages as $language)
@@ -65,7 +76,7 @@
 							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
 						</div>
 
-					@elseif($custom_field[$i]->type == 'text')
+					@elseif($custom_fields[$i]->type == 'text')
 						<div style="padding-top: 20px;">
 							<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
 							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>

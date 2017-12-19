@@ -3,6 +3,7 @@ use App\Language;
 use Illuminate\Http\Request;
 use App\Category;
 use App\Item;
+use App\Tag;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,15 +52,22 @@ Route::delete('/backend/categories/custom_fields/{category_id}/{id}', [ 'as' => 
 	return redirect()->route('categories.show', $category_id);
 }]);
 
+//Item Extra Field
+
+
 Route::resource('/backend/items', 'ItemController');
+Route::resource('comments', 'CommentController');
+Route::resource('tags', 'TagController');
+Route::get('/search/{text}', 'TagController@search');
 
 Route::get('/backend/items/create/{id}', function($id) {
 	$languages = Language::all();
     $title = "Create Item";
     $category_id = $id;
     $custom_fields = DB::table('category_custom_field')->where('category_id', $id)->get();
+    $tags = Tag::all();
 
-    return view('items.create', compact('languages', 'category_id', 'title', 'custom_fields'));
+    return view('items.create', compact('languages', 'category_id', 'title', 'custom_fields', 'tags'));
 });
 Route::resource('/backend/menus', 'MenuController');
 

@@ -14,6 +14,11 @@ class Category extends Node
     	return $this->belongsToMany('App\Language')->withPivot('category_id', 'language_id');
     }
 
+    public function items()
+    {
+        return $this->hasMany('App\Item');
+    }
+
     public static function getCategoryType($id)
     {
     	$type= "";

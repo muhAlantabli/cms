@@ -32,6 +32,14 @@
 				<p>{{ $custom_field->value }}</p>
 			</div>
 			@endforeach
+
+			@if(count($tags))
+				<strong>Tags:</strong>
+				@foreach($tags as $tag)
+					<a class="waves-effect waves-light btn" href="/search/{{$tag->name}}">{{ $tag->name }}</a>
+				@endforeach
+			@endif
+			
 		</div>
 	</div>
 

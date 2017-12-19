@@ -53,11 +53,18 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
-        
-            $this->validate($request, [
-            'name' => 'required',
-            'category_id' => 'required'
-            ]);
+            if($request->type != "parent") {
+                $this->validate($request, [
+                'name' => 'required',
+                'category_id' => 'required'
+                ]);    
+            } else {
+                $this->validate($request, [
+                'name' => 'required',
+                
+                ]);
+            }
+            
 
             $menu = new Menu;
             $menu->name = $request->input('name');

@@ -8,6 +8,7 @@ use App\Language;
 use App\Category;
 use DB;
 use App\Menu;
+use App\Tag;
 
 class ItemController extends Controller
 {
@@ -49,6 +50,7 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
+        //return $request;
         $menu = Menu::where('category_id', $request->input('category_id'))->first();
         if($menu) {
             if($menu->type == 'list_of_categories') {
@@ -126,8 +128,9 @@ class ItemController extends Controller
                 }
             }
         }
-        
 
+        $item->tags()->sync($request->input('tags'), false);
+        
         return redirect()->route('categories.show', $item->category_id);
     }
 
@@ -158,7 +161,7 @@ class ItemController extends Controller
         $languages = Language::all();
         $categories = Category::all();
         $category = $item->category_id;
-        //$custom_fields = DB::table('custom_field_item')->where('item_id', $item->id)->get();
+        
         $custom_fields = DB::table('category_custom_field')
                     ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                     ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
@@ -166,8 +169,9 @@ class ItemController extends Controller
                     ->get();
         $title = "Edit Item";
         //return $custom_field;
+        $tags = Tag::all();
 
-        return view('items.edit', compact('languages', 'categories', 'title', 'item', 'category', 'custom_fields'));
+        return view('items.edit', compact('languages', 'categories', 'title', 'item', 'category', 'custom_fields', 'tags'));
     }
 
     /**
@@ -258,7 +262,12 @@ class ItemController extends Controller
                 }
             }
         }
-        
+
+        if(isset($request->tags)) {
+            $item->tags()->sync($request->input('tags'));
+        } else {
+            $item->tags()->sync([]);
+        }
 
         
         return redirect()->route('categories.show', $item->category_id);

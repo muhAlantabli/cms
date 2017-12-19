@@ -67,30 +67,46 @@ class RouteServiceProvider extends ServiceProvider
                 }]);
             }
 
-
-
             Route::get($category->url, ['middleware' => 'web', 'as' => $category->title, function() use ($category) {
 
                 $categories = Category::where('parent_id', $category->id)->get();
                 $menu = Menu::where('category_id', $category->id)->first();
 
-                if(count($categories) == 0) {
-                    $items = Item::where('category_id', $category->id)->get();
-                    if(count($items) == 1 && $menu->type == 'item_per_page') {
-                        return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
-                    'page' => $category,
-                ]);
+                /////////////////////////////////////////////
+                if($menu) {
+                    if(count($categories) == 0) {
+                        $items = Item::where('category_id', $category->id)->get();
+                        if(count($items) == 1 && $menu->type == 'item_per_page') {
+                            return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
+                                'page' => $category,
+                            ]);    
+                        } else {
+                            return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
+                                'page' => $category,
+                            ]);
+                        }
                     } else {
-                        return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
-                    'page' => $category,
-                ]);
+                        return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
+                            'page' => $category,
+                        ]);
                     }
+
                 } else {
-                    return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
-                    'page' => $category,
-                ]);
+                    if(count($category->items)) {
+                        return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
+                            'page' => $category,
+                        ]);
+                    } else {
+                        return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
+                            'page' => $category,
+                        ]);  
+                    }
                 }
-            }]);      
+
+                ////////////////////////////////////////////
+
+            }]);
+      
         }
     }
 

@@ -18,6 +18,17 @@
 				</div>
 
 				<div class="input-field" style="padding-top: 20px;">
+				    <select name="tags[]" multiple="multiple">
+				      <option value="" disabled selected>Choose your option</option>
+				      @foreach($tags as $tag)
+						<option value="{{ $tag->id }}">{{ $tag->name }}</option>
+				      @endforeach
+				      
+				    </select>
+				    <label for="tags">Tags</label>
+				</div>
+
+				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="category_id">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($categories as $c)

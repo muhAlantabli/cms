@@ -23,10 +23,11 @@ class PageController extends Controller
             ->where(['category_custom_field.category_id' => $page->category_id, 'custom_field_item.item_id' => $page->id])
             ->get();
 
+            $tags = $page->tags;
             //return $item;
         if($page) {
             
-            return view('pages.page', compact('page', 'custom_fields', 'urls'));    
+            return view('pages.page', compact('page', 'custom_fields', 'urls', 'tags'));    
         } else {
             return view('pages.blank');
     }

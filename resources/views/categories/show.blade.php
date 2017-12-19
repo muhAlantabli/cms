@@ -83,51 +83,53 @@
 			</tbody>
 		</table>	
 		</div>
-			
-	</div>
-	@if(auth()->user()->type == 'admin')
-	<div class="col s4 offset-s8">
-		<div class="card">
-			<div class="center" style="padding-top: 20px;">
-				<i>Extra Catgeory Fields</i>
+
+		@if(auth()->user()->type == 'admin')
+			<div class="col s4 offset-s8">
+				<div class="card">
+					<div class="center" style="padding-top: 20px;">
+						<i>Extra Catgeory Fields</i>
+					</div>
+		            <div class="card-content">
+					
+						<table class="bordered">
+							<thead>
+								<tr>
+									<th>key</th>
+									<th>Type</th>
+									<th>Action</th>
+								</tr>
+							</thead>
+							<tbody>
+								@foreach($custom_fields as $custom_field)
+								<tr>
+									<td>{{ $custom_field->field_key }}</td>
+									<td>{{ $custom_field->type }}</td>
+									<td>
+										<form action="{{ route('categories.delete_custom_field', [ 'category_id' => $category->id, 'id' => $custom_field->id]) }}" 
+											method="POST">
+											<input type="hidden" name="_method" value="DELETE">
+											<input type="hidden" name="_token" value="{{ csrf_token() }}">
+											<button class="waves-effect waves-light btn red tiny" type="submit" href="#">Delete</button>
+										</form>
+									</td>
+								</tr>
+								@endforeach
+							</tbody>
+						</table>
+		              
+		            </div>
+		            <div class="card-action">
+		              <div class="center"><a style="padding:0 100px;" href="{{ route('categories.create_custom_field', $category->id) }}" class="waves-effect waves-light btn ">Create</a></div>
+		              <div>
+		            </div>
+		          </div>
+				</div>
 			</div>
-            <div class="card-content">
+			@endif
 			
-				<table class="bordered">
-					<thead>
-						<tr>
-							<th>key</th>
-							<th>Type</th>
-							<th>Action</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach($custom_fields as $custom_field)
-						<tr>
-							<td>{{ $custom_field->field_key }}</td>
-							<td>{{ $custom_field->type }}</td>
-							<td>
-								<form action="{{ route('categories.delete_custom_field', [ 'category_id' => $category->id, 'id' => $custom_field->id]) }}" 
-									method="POST">
-									<input type="hidden" name="_method" value="DELETE">
-									<input type="hidden" name="_token" value="{{ csrf_token() }}">
-									<button class="waves-effect waves-light btn red tiny" type="submit" href="#">Delete</button>
-								</form>
-							</td>
-						</tr>
-						@endforeach
-					</tbody>
-				</table>
-              
-            </div>
-            <div class="card-action">
-              <div class="center"><a style="padding:0 100px;" href="{{ route('categories.create_custom_field', $category->id) }}" class="waves-effect waves-light btn ">Create</a></div>
-              <div>
-            </div>
-          </div>
-		</div>
 	</div>
-	@endif
+	
 	
 @endsection
 
