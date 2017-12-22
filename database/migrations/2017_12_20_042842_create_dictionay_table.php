@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCategoriesLanguagesTable extends Migration
+class CreateDictionayTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,14 @@ class CreateCategoriesLanguagesTable extends Migration
      */
     public function up()
     {
-        Schema::create('category_language', function (Blueprint $table) {
+        Schema::create('dictionary', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('category_id')->unsigned();
-            $table->foreign('category_id')->references('id')->on('categories');
-            
+            $table->string('text');
             $table->integer('language_id')->unsigned();
             $table->foreign('language_id')->references('id')->on('languages');
-
-            $table->string('title')->unique();
-            $table->text('desc');
+            $table->string('translated_text');
+            
+            $table->timestamps();
         });
     }
 
@@ -33,6 +31,6 @@ class CreateCategoriesLanguagesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('category_language');
+        Schema::dropIfExists('dictionary');
     }
 }

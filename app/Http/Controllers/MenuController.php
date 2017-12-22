@@ -27,6 +27,9 @@ class MenuController extends Controller
     {
         //return Menu::all()->toHierarchy();
         $menus = Menu::all();
+        
+
+        //return $menus;
 
         return view('menus.index', compact('menus'));
     }
@@ -53,31 +56,33 @@ class MenuController extends Controller
      */
     public function store(Request $request)
     {
+        //return $request;
+        foreach(Language::all() as $language) {
             if($request->type != "parent") {
                 $this->validate($request, [
-                'name' => 'required',
-                'category_id' => 'required'
+                    'name_'.$language->slug => 'required',
+                    'category_id' => 'required'
                 ]);    
             } else {
                 $this->validate($request, [
-                'name' => 'required',
-                
+                    'name_'.$language->slug => 'required',
                 ]);
             }
+        }
             
-
             $menu = new Menu;
-            $menu->name = $request->input('name');
             $menu->category_id = $request->input('category_id');
             $menu->type = $request->input('type');
 
             $menu->save();
-
-            $menu->languages()->attach($request->input('language_id'));
-
             $this->updateMenuOrder($menu, $request);
-
             $menu->save();
+
+            foreach(Language::all() as $language) {
+                $menu->languages()->attach($language->id, [ 'name' => $request->input('name_'.$language->slug)]);                
+            }
+
+            
 
             Session::flash('success', 'This Menu item was successfully created.');
             return redirect()->route('menus.index');    
@@ -122,15 +127,20 @@ class MenuController extends Controller
      */
     public function update(Request $request, Menu $menu)
     {
-        $this->validate($request, [
-            'category_id' => 'required'
-        ]);
+        //return $request;
         
-        $menu->fill($request->only('name', 'type', 'category_id'))->save();
+        $menu->fill($request->only('type', 'category_id'))->save();
 
         if($response = $this->updateMenuOrder($menu, $request)) {
             return $response;
         }
+
+        $data = [];
+        foreach(Language::all() as $language) {
+            $data[$language->id] = ['name' => $request->input('name_'.$language->slug)];
+        }
+
+        $menu->languages()->sync($data);
 
         Session::flash('success', 'This Menu item was successfully updated.');
         return redirect()->route('menus.index');

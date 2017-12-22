@@ -19,6 +19,10 @@ class CreateItemLanguageTable extends Migration
             $table->foreign('item_id')->references('id')->on('items');
             $table->integer('language_id')->unsigned();
             $table->foreign('language_id')->references('id')->on('languages');
+
+            $table->string('title');
+            $table->text('desc')->nullable();
+            $table->text('info')->nullable();
         });
     }
 

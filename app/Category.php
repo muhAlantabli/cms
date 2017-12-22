@@ -11,7 +11,7 @@ class Category extends Node
 	protected $guarded = [];
     public function languages()
     {
-    	return $this->belongsToMany('App\Language')->withPivot('category_id', 'language_id');
+    	return $this->belongsToMany('App\Language')->withPivot('category_id', 'language_id', 'title', 'desc');
     }
 
     public function items()
@@ -39,9 +39,15 @@ class Category extends Node
         return $type;
     }
 
-    public function paddedTitle()
+    public function paddedTitle($id = 1)
     {
-        return str_repeat('&nbsp;', $this->depth*4).$this->title;
+        return str_repeat('&nbsp;', $this->depth*4).$this->languages()->first()->pivot->title;
+        $title =  Category::whereHas('languages', function($query) use ($id) {
+            return $query->where('language_id', $id);
+        })->get();
+
+        //return $title;
+        return str_repeat('&nbsp;', $title[0]->title);
     }
 
     public function updateOrder($parent_id)

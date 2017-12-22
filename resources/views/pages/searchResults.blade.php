@@ -15,7 +15,7 @@
 		              <p>{!! $item['desc'] !!}</p>
 		            </div>
 		            <div class="card-action">
-		              <a href="{{ route(App\Category::where('id', $item['category_id'])->value('title').'.'.$item['title']) }}">Read More</a>
+		              <a href="{{ url(session('lang_id').'/'.App\Category::where('id', $item['category_id'])->value('url').'.'.$item['id']) }}">Read More</a>
 		            </div>
 		         </div>
         </div>

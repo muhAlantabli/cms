@@ -10,7 +10,7 @@ class Item extends Model
 
     public function languages()
     {
-    	return $this->belongsToMany('App\Language')->withPivot('item_id', 'language_id');
+    	return $this->belongsToMany('App\Language')->withPivot('item_id', 'language_id', 'title', 'info', 'desc');
     }
 
     public function tags()

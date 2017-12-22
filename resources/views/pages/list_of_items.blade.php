@@ -8,7 +8,7 @@
 			        <a href="{{ url('/') }}" class="breadcrumb purple-text">Home </a>
 			        @foreach($urls as $url)
 				        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;>
-				        <a href="{{ route(ucfirst($url)) }}" class="breadcrumb purple-text">{{ ucfirst($url) }}</a>
+				        <a href="#" class="breadcrumb purple-text">{{ ucfirst($url) }}</a>
 			        @endforeach
 			</div>
 		@foreach($items as $item)
@@ -16,13 +16,13 @@
 				<div class="card"">
 		            <div class="card-image">
 		              <img height="128" width="128" src="/images/{{ $item->image }}">
-		              <span class="card-title">{{ $item->title }}</span>
+		              <span class="card-title">{{ $item->languages->find(session('lang_id'))->pivot->title }}</span>
 		            </div>
 		            <div class="card-content">
-		              <p>{!! $item->desc !!}</p>
+		              <p>{!! $item->languages->find(session('lang_id'))->pivot->desc !!}</p>
 		            </div>
 		            <div class="card-action">
-		              <a href="{{ route(App\Category::where('id', $item->category_id)->value('title').'.'.$item->title) }}">Read More</a>
+		              <a href="{{ url(session('slug').'/'.App\Category::where('id', $item->category_id)->value('url').'/'.$item->id) }}">Read More</a>
 		            </div>
 		         </div>
         </div>

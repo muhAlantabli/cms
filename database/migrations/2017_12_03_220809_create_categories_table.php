@@ -20,21 +20,16 @@ class CreateCategoriesTable extends Migration
             $table->integer('parent')->unsigned()->nullable();
             $table->foreign('parent')->references('id')->on('categories');
             
-            $table->string('title')->unique();
             $table->string('image');
-            $table->text('desc');
             
             $table->integer('created_by')->unsigned();
             $table->foreign('created_by')->references('id')->on('users');
             
             $table->integer('updated_by')->unsigned();
             $table->foreign('updated_by')->references('id')->on('users');
-            
-            $table->integer('deleted_by')->unsigned()->nullable();
-            $table->foreign('deleted_by')->references('id')->on('users');
 
             $table->timestamps();
-            $table->softDeletes();
+            
         });
     }
 

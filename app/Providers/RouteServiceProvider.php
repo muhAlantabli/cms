@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use App\Category;
 use App\Item;
 use App\Menu;
+use App\Language;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -57,57 +58,66 @@ class RouteServiceProvider extends ServiceProvider
         Route::middleware('web')
              ->namespace($this->namespace)
              ->group(base_path('routes/web.php'));
+             ///////////////////
+        
+        /////////////////////////////////
+        foreach(Language::all() as $language) {
+            Route::group(['prefix' => $language->slug ], function() {
+                //App::setLocale($language->slug);
+                foreach(Category::all() as $category) {
+                    foreach(Item::where('category_id', $category->id)->get() as $item) {
+                        Route::get($category->url.'/'.$item->id, ['middleware' => 'web', 'as' => $category->url.'.'.$item->id, function() use ($item) {
+                                //App::setLocale($language->slug);
+                                return $this->app->call('App\Http\Controllers\PageController@show', [
+                            'page' => $item,
+                        ]);
+                        }]);
+                    }
 
-        foreach(Category::all() as $category) {
-            foreach(Item::where('category_id', $category->id)->get() as $item) {
-                Route::get($category->url.'/'.$item->id, ['middleware' => 'web', 'as' => $category->title.'.'.$item->title, function() use ($item) {
-                        return $this->app->call('App\Http\Controllers\PageController@show', [
-                    'page' => $item,
-                ]);
-                }]);
-            }
+                    Route::get($category->url, ['middleware' => 'web', 'as' => $category->slug, function() use ($category) {
 
-            Route::get($category->url, ['middleware' => 'web', 'as' => $category->title, function() use ($category) {
+                        $categories = Category::where('parent_id', $category->id)->get();
+                        $menu = Menu::where('category_id', $category->id)->first();
 
-                $categories = Category::where('parent_id', $category->id)->get();
-                $menu = Menu::where('category_id', $category->id)->first();
+                        /////////////////////////////////////////////
+                        if($menu) {
+                            if(count($categories) == 0) {
+                                $items = Item::where('category_id', $category->id)->get();
+                                if(count($items) == 1 && $menu->type == 'item_per_page') {
+                                    return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
+                                        'page' => $category,
+                                    ]);    
+                                } else {
+                                    return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
+                                        'page' => $category,
+                                    ]);
+                                }
+                            } else {
+                                return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
+                                    'page' => $category,
+                                ]);
+                            }
 
-                /////////////////////////////////////////////
-                if($menu) {
-                    if(count($categories) == 0) {
-                        $items = Item::where('category_id', $category->id)->get();
-                        if(count($items) == 1 && $menu->type == 'item_per_page') {
-                            return $this->app->call('App\Http\Controllers\ItemPerPageController@show', [
-                                'page' => $category,
-                            ]);    
                         } else {
-                            return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
-                                'page' => $category,
-                            ]);
+                            if(count($category->items)) {
+                                return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
+                                    'page' => $category,
+                                ]);
+                            } else {
+                                return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
+                                    'page' => $category,
+                                ]);  
+                            }
                         }
-                    } else {
-                        return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
-                            'page' => $category,
-                        ]);
-                    }
 
-                } else {
-                    if(count($category->items)) {
-                        return $this->app->call('App\Http\Controllers\ListOfItemsController@show', [
-                            'page' => $category,
-                        ]);
-                    } else {
-                        return $this->app->call('App\Http\Controllers\ListOfCategoriesController@show', [
-                            'page' => $category,
-                        ]);  
-                    }
+                        ////////////////////////////////////////////
+
+                    }]);
+              
                 }
-
-                ////////////////////////////////////////////
-
-            }]);
-      
+            });    
         }
+        
     }
 
     /**

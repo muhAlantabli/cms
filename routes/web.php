@@ -16,9 +16,19 @@ use App\Tag;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+
+foreach(Language::all() as $language) {
+	Route::group(['prefix' => $language->slug ], function() use ($language){
+		Route::get('/', function () use ($language){
+		    session(['slug' => $language->slug ]);
+		    session(['lang_id'=> $language->id]);
+		    //return session('lang_id');
+		    return view('welcome');
+		});
+	});
+}
+
+
 
 Route::get('/backend', function() {
     return view('admin.index');
@@ -55,10 +65,37 @@ Route::delete('/backend/categories/custom_fields/{category_id}/{id}', [ 'as' => 
 //Item Extra Field
 
 
-Route::resource('/backend/items', 'ItemController');
-Route::resource('comments', 'CommentController');
-Route::resource('tags', 'TagController');
-Route::get('/search/{text}', 'TagController@search');
+Route::resource('/backend/items', 'ItemController')->middleware('auth');
+Route::resource('comments', 'CommentController')->middleware('auth');
+Route::resource('tags', 'TagController')->middleware('auth');
+Route::post('/search', [ 'as' => 'search' , function(Request $request) {
+	$text = $request->input('search');
+	return $text;
+	return $this->app->call('App\Http\Controllers\TagController@search', [
+            'text' => $text,
+        ]); 
+}]);
+Route::resource('languages', 'LanguageController')->middleware('auth');
+
+Route::get('/languages/translate/{id}', [ 'as' => 'languages.translate' ,function($id) {
+		return view('languages.translate', compact('id'));
+	}]);
+
+Route::post('/languages/translate_text', [ 'as' => 'languages.store_text' ,function(Request $request) {
+		DB::table('dictionary')->insert([
+			'text' => $request->input('text'),
+			'translated_text' => $request->input('translated_text'),
+			'language_id' => $request->input('language_id')
+		]);
+
+		return redirect()->route('languages.show', $request->input('language_id'));
+	}]);
+
+Route::delete('/delete_text/{language_id}/{id}', function($language_id, $id) {
+	DB::table('dictionary')->where('id', '=', $id)->delete();
+
+	return redirect()->route('languages.show', $language_id);
+});
 
 Route::get('/backend/items/create/{id}', function($id) {
 	$languages = Language::all();

@@ -10,16 +10,26 @@
 		<form action="{{ route('items.store') }}" method="POST" enctype="multipart/form-data">
 			{{ csrf_field() }}
 			<div class="col s12">
+		      <ul class="tabs">
+		      	@foreach($languages as $language)
+		        	<li class="tab col s3">
+		        		<a href="#{{ $language->slug }}">{{ $language->name }}</a>
+		        	</li>
+		        @endforeach
+		      </ul>
+		    </div>
+			
+			@foreach($languages as $language)
+			<div class="col s12" id="{{ $language->slug }}">
 				<div class="input-field" style="padding-top: 20px;">
-					<input type="text" id="title" name="title" class="validate">
-					<label for="title">Title</label>
-															
+					<input type="text" id="title_{{ $language->slug }}" name="title_{{ $language->slug }}" class="validate">
+					<label for="title">Title</label>								
 				</div>
 
 				<input type="hidden" name="category_id" value="{{ $category_id }}" >
 
 				<div class="input-field" style="padding-top: 20px;">
-				    <select name="tags[]" multiple="multiple">
+				    <select name="tags_{{ $language->slug }}[]" multiple="multiple">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($tags as $tag)
 						<option value="{{ $tag->id }}">{{ $tag->name }}</option>
@@ -29,16 +39,7 @@
 				    <label for="tags">Tags</label>
 				</div>
 
-				<div class="input-field" style="padding-top: 20px;">
-				    <select name="language_id">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($languages as $language)
-						<option value="{{ $language->id }}">{{ $language->name }}</option>
-				      @endforeach
-				      
-				    </select>
-				    <label for="language_id">Language</label>
-				</div>
+				
 
 				<div class="file-field input-field"  style="padding-top: 20px;">
 			      <div class="btn">
@@ -52,12 +53,12 @@
 
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
-					<textarea name="desc" id="desc"></textarea>
+					<textarea name="desc_{{ $language->slug }}" id="desc_{{ $language->slug }}"></textarea>
     			</div>
 				
 				<div style="padding-top: 20px;">
 					<label for="info">Information</label>
-					<textarea name="info" id="info"></textarea>
+					<textarea name="info_{{ $language->slug }}" id="info_{{ $language->slug }}"></textarea>
     			</div>
 
 				<input type="hidden" name="length" value="{{ count($custom_fields) }}">
@@ -101,6 +102,7 @@
 					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 				</div>
 			</div>
+			@endforeach
 		</form>
 	</div>
 
@@ -115,9 +117,13 @@
 
 	<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('desc');
-        CKEDITOR.replace('info');
-        CKEDITOR.replace('custom_field_value_t');
+    	
+    		@foreach($languages as $l)
+	        CKEDITOR.replace('desc_{{ $l->slug }}');
+	        CKEDITOR.replace('info_{{ $l->slug }}');
+	        
+        	@endforeach
+        	CKEDITOR.replace('custom_field_value_t');
     </script>
 
 @endsection

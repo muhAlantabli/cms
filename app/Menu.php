@@ -10,12 +10,12 @@ class Menu extends Node
     protected $guarded= [];
      public function languages()
     {
-    	return $this->belongsToMany('App\Language')->withPivot('menu_id', 'language_id');
+    	return $this->belongsToMany('App\Language')->withPivot('menu_id', 'language_id', 'name');
     }
 
     public function paddedName()
     {
-    	return str_repeat('&nbsp;', $this->depth*4).$this->name;
+    	return str_repeat('&nbsp;', $this->depth*4).$this->languages->first()->pivot->name;
     }
 
     public function updateOrder($order, $orderPage)

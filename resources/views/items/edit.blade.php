@@ -11,8 +11,19 @@
 			{{ csrf_field() }}
 			{{ method_field('PUT') }}
 			<div class="col s12">
+		      <ul class="tabs">
+		      	@foreach($languages as $language)
+		        	<li class="tab col s3">
+		        		<a href="#{{ $language->slug }}">{{ $language->name }}</a>
+		        	</li>
+		        @endforeach
+		      </ul>
+		    </div>
+			
+			@foreach($languages as $language)
+			<div class="col s12" id="{{ $language->slug }}">
 				<div class="input-field" style="padding-top: 20px;">
-					<input type="text" id="title" name="title" class="validate" value="{{ $item->title or old('title') }}">
+					<input type="text" id="title_{{ $language->slug }}" name="title_{{ $language->slug }}" class="validate" value="{{ $item->languages->find($language->id)->pivot->title or old('title') }}">
 					<label for="title">Title</label>
 															
 				</div>
@@ -32,22 +43,11 @@
 				    <select class="icons" name="category_id">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($categories as $c)
-						<option selected="{{ $category == $c->id ? "selected" : "" }}" value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->title }}</option>
+						<option selected="{{ $category == $c->id ? "selected" : "" }}" value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->languages->find($language->id)->pivot->title }}</option>
 				      @endforeach
 				      
 				    </select>
 				    <label for="category_id">Category</label>
-				</div>
-
-				<div class="input-field" style="padding-top: 20px;">
-				    <select name="language_id">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($languages as $language)
-						<option value="{{ $language->id }}">{{ $language->name }}</option>
-				      @endforeach
-				      
-				    </select>
-				    <label for="language_id">Language</label>
 				</div>
 
 				<div class="file-field input-field"  style="padding-top: 20px;">
@@ -63,12 +63,12 @@
 
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
-					<textarea name="desc" id="desc">{{ $item->desc or old('desc') }}</textarea>
+					<textarea name="desc_{{ $language->slug }}" id="desc_{{ $language->slug }}">{{ $item->languages->find($language->id)->pivot->desc or old('desc') }}</textarea>
     			</div>
 				
 				<div style="padding-top: 20px;">
 					<label for="info">Information</label>
-					<textarea name="info" id="info">{{ $item->info or old('info') }}</textarea>
+					<textarea name="info_{{ $language->slug }}" id="info_{{ $language->slug }}">{{ $item->languages->find($language->id)->pivot->info or old('info') }}</textarea>
     			</div>
 
     			<input type="hidden" name="length" value="{{ count($custom_fields) }}">
@@ -107,10 +107,11 @@
 		    			</div>
 					@endif
     			@endfor
-
-				<div style="padding-top: 20px;">
-					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
-				</div>
+				
+			</div>
+			@endforeach
+			<div style="padding-top: 20px;">
+				<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 			</div>
 		</form>
 	</div>
@@ -126,8 +127,10 @@
 
 	<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('desc');
-        CKEDITOR.replace('info');
+    	@foreach($languages as $language)
+	        CKEDITOR.replace('desc_{{$language->slug}}');
+    	    CKEDITOR.replace('info_{{$language->slug}}');
+        @endforeach
         CKEDITOR.replace('custom_field_value_t');
     </script>
 

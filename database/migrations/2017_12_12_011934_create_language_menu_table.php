@@ -19,6 +19,7 @@ class CreateLanguageMenuTable extends Migration
             $table->foreign('language_id')->references('id')->on('languages');
             $table->integer('menu_id')->unsigned();
             $table->foreign('menu_id')->references('id')->on('menus');
+            $table->string('name')->unique();
 
         });
     }

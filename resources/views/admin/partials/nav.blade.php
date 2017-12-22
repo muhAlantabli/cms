@@ -19,7 +19,7 @@
         </li>
 
         <li><a href="#" class="waves-effect waves-teal">Users</a></li>
-        <li><a href="#" class="waves-effect waves-teal">Languages</a></li>
+        <li><a href="{{ route('languages.index') }}" class="waves-effect waves-teal">Languages</a></li>
         
         <li class="bold"><a href="{{ route('menus.index') }}" class="waves-effect waves-teal">Menus</a></li>
         <li><a href="{{ route('comments.index') }}" class="waves-effect waves-teal">Comments</a></li>

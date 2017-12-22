@@ -5,10 +5,12 @@
 	<div class="row">
 		
 		<div class="col s8">
+			@foreach(App\Language::all() as $language)
+			@if($item->languages->find($language->id))
 			<ul class="collapsible" data-collapsible="accordion">
 				<li>
 					<div class="collapsible-header active"><strong>Title</strong></div>
-					<div class="collapsible-body">{{ $item->title }}</div>
+					<div class="collapsible-body">{{ $item->languages->find($language->id)->pivot->title }}</div>
 				</li>
 
 				<li>
@@ -18,12 +20,12 @@
 
 				<li>
 					<div class="collapsible-header"><strong>Description</strong></div>
-					<div class="collapsible-body">{!! $item->desc !!}</div>
+					<div class="collapsible-body">{!! $item->languages->find($language->id)->pivot->desc !!}</div>
 				</li>
 
 				<li>
 					<div class="collapsible-header"><strong>Information</strong></div>
-					<div class="collapsible-body">{!! $item->info !!}</div>
+					<div class="collapsible-body">{!! $item->languages->find($language->id)->pivot->info !!}</div>
 				</li>
 
 				@foreach($custom_fields as $custom_field)
@@ -33,6 +35,8 @@
 					</li>
 				@endforeach
 			</ul>
+			@endif
+			@endforeach
 		</div>
 	
 	<div class="col s4">

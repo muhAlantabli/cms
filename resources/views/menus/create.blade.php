@@ -10,8 +10,18 @@
 		<form action="{{ route('menus.store') }}" method="POST" enctype="multipart/form-data">
 			{{ csrf_field() }}
 			<div class="col s12">
+				<ul class="tabs">
+			      	@foreach($languages as $language)
+			        	<li class="tab col s3">
+			        		<a href="#{{ $language->slug }}">{{ $language->name }}</a>
+			        	</li>
+			        @endforeach
+			      </ul>
+			</div>
+			@foreach($languages as $language)
+			<div class="col s12" id="{{ $language->slug }}">
 				<div class="input-field" style="padding-top: 20px;">
-					<input type="text" id="name" name="name" class="validate">
+					<input type="text" id="name_{{ $language->slug }}" name="name_{{ $language->slug }}" class="validate">
 					<label for="name">Name</label>
 															
 				</div>
@@ -38,17 +48,6 @@
 				    <label for="type">Type</label>
 				</div>
 
-				<div class="input-field" style="padding-top: 20px;">
-				    <select name="language_id">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($languages as $language)
-						<option value="{{ $language->id }}">{{ $language->name }}</option>
-				      @endforeach
-				      
-				    </select>
-				    <label for="language_id">Language</label>
-				</div>
-
 				<div class="input-field row">
 					<div class="col s1">
 						<label for="order">&nbsp;&nbsp;&nbsp;&nbsp;Order</label>
@@ -73,9 +72,10 @@
 					</div>
 				</div>
 
-				<div style="padding-top: 20px;">
-					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
-				</div>
+			</div>
+			@endforeach
+			<div style="padding-top: 20px;">
+				<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 			</div>
 		</form>
 	</div>
@@ -88,11 +88,5 @@
 			$('select').material_select();
 		});	
 	</script>
-
-	<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
-    <script>
-        CKEDITOR.replace('desc');
-        CKEDITOR.replace('info');
-    </script>
 
 @endsection

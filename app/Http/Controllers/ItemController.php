@@ -35,7 +35,7 @@ class ItemController extends Controller
      */
     public function create()
     {
-        return $category;
+        //return $category;
         $languages = Language::all();
         $title = "Create Item";
 
@@ -51,6 +51,14 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         //return $request;
+        foreach(Language::all() as $language) {
+            $this->validate($request, [
+            'title_'.$language->slug => 'required',
+            'desc_'.$language->slug => 'required',
+            'info_'.$language->slug => 'required'
+        ]);
+        }
+
         $menu = Menu::where('category_id', $request->input('category_id'))->first();
         if($menu) {
             if($menu->type == 'list_of_categories') {
@@ -74,16 +82,10 @@ class ItemController extends Controller
             ]);
         }
         
-        
-        $this->validate($request, [
-            'title' => 'required',
-            
-        ]);
 
         $item = new Item;
-        $item->title = $request->input('title');
+        
         $item->category_id = $request->input('category_id');
-
         if($request->hasFile('image')) {
             $image = $request->file('image');
             $image_name = time()."-".$image->getClientOriginalExtension();
@@ -92,15 +94,15 @@ class ItemController extends Controller
             $item->image = $image_name;
         }
 
-        $item->desc = $request->input('desc');
-        $item->info = $request->input('info');
         $item->created_by = auth()->user()->id;
         $item->updated_by = auth()->user()->id;
 
         $item->save();
-
-        $item->languages()->attach($request->language_id);
-
+        foreach(Language::all() as $language) {
+            $item->languages()->attach($language->id, ['title' => $request->input('title_'.$language->slug), 'desc' => $request->input('desc_'.$language->slug), 'info' => $request->input('info_'.$language->slug)]);
+            $item->tags()->sync($request->input('tags_'.$language->slug), false);
+        }
+        
         if($request->input('length') > 0) {
             for($i =0; $i < $request->input('length'); $i++) {
                 if($request->has('custom_field_value'.$i)) {
@@ -128,8 +130,6 @@ class ItemController extends Controller
                 }
             }
         }
-
-        $item->tags()->sync($request->input('tags'), false);
         
         return redirect()->route('categories.show', $item->category_id);
     }
@@ -165,6 +165,7 @@ class ItemController extends Controller
         $custom_fields = DB::table('category_custom_field')
                     ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                     ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
+                    
                     ->where(['category_custom_field.category_id' => $item->category_id, 'custom_field_item.item_id' => $item->id])
                     ->get();
         $title = "Edit Item";
@@ -183,8 +184,9 @@ class ItemController extends Controller
      */
     public function update(Request $request, Item $item)
     {
+        //return $request;
 
-        $item->fill($request->only(['title', 'info', 'desc', 'category_id']));
+        $item->fill($request->only(['category_id']));
         
         if($request->hasFile('image')) {
             $image = $request->file('image');
@@ -197,9 +199,12 @@ class ItemController extends Controller
         $item->updated_by = auth()->user()->id;
         $item->save();
 
-        if($request->has('language_id')) {
-            $item->languages()->sync($request->language_id);
+        $data = [];
+        foreach(Language::all() as $language) {
+            $data[$language->id] = ['title' => $request->input('title_'.$language->slug), 'desc' => $request->input('info_'.$language->slug)];
         }
+
+        $item->languages()->sync($data);
 
         if($request->input('length') > 0) {
             for($i =0; $i < $request->input('length'); $i++) {

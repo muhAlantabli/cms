@@ -10,33 +10,41 @@
 		<form action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data">
 			{{ csrf_field() }}
 			<div class="col s12">
+		      <ul class="tabs">
+		      	@foreach($languages as $language)
+		        	<li class="tab col s3">
+		        		<a href="#{{ $language->slug }}">{{ $language->name }}</a>
+		        	</li>
+		        @endforeach
+		      </ul>
+		  	</div>
+		     @foreach($languages as $language)
+			<div class="col s12" id="{{ $language->slug }}">
 				<div class="input-field" style="padding-top: 20px;">
-					<input type="text" id="title" name="title" class="validate" value="{{ $category->title or old('title') }}">
+					<input type="text" id="title_{{ $language->slug }}" name="title_{{ $language->slug }}" class="validate" value="{{ $category->title or old('title') }}">
 					<label for="title">Title</label>
 															
 				</div>
+
+				@if($language->slug == "en")
+					<div class="input-field" style="padding-top: 20px;">
+						<input type="text" id="slug" name="slug" class="validate">
+						<label for="slug">Slug</label>
+																
+					</div>
+				@endif
 
 				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="parent_id">
 				      <option value="" disabled selected>Choose your option</option>
 				      @foreach($categories as $c)
-						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->paddedTitle() }}</option>
+						<option value="{{ $c->id }}" data-icon="/images/{{ $c->image }}" class="left circle">{{ $c->paddedTitle($c->id) }}</option>
 				      @endforeach
 				      
 				    </select>
 				    <label for="parent_id">Parent</label>
 				</div>
 
-				<div class="input-field" style="padding-top: 20px;">
-				    <select name="language_id">
-				      <option value="" disabled selected>Choose your option</option>
-				      @foreach($languages as $language)
-						<option value="{{ $language->id }}">{{ $language->name }}</option>
-				      @endforeach
-				      
-				    </select>
-				    <label for="language_id">Language</label>
-				</div>
 
 				<div class="file-field input-field"  style="padding-top: 20px;">
 			      <div class="btn">
@@ -50,12 +58,14 @@
 
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
-					<textarea name="desc" id="desc">{{ $category->desc or old('desc') }}</textarea>
+					<textarea name="desc_{{ $language->slug }}" id="desc_{{ $language->slug }}">{{ $category->desc or old('desc') }}</textarea>
     			</div>
 
-				<div style="padding-top: 20px;">
+				
+			</div>
+			@endforeach
+			<div style="padding-top: 20px;">
 					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
-				</div>
 			</div>
 		</form>
 	</div>
@@ -71,7 +81,9 @@
 
 	<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('desc');
+    	@foreach($languages as $language)
+        	CKEDITOR.replace('desc_{{ $language->slug }}');
+        @endforeach
     </script>
 
 @endsection

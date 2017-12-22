@@ -32,7 +32,7 @@
 						<td>{{ $menu->id }}</td>
 						<td><a href="{{ route('menus.edit', $menu->id) }}">{{ $menu->paddedName() }}</a></td>
 						<td>{{ $menu->type }}</td>
-						<td>{{ App\Category::where('id', $menu->category_id)->value('title') }}</td>
+						<td>{{ DB::table('category_language')->where('category_id', '=', $menu->category_id)->where('language_id','=', 1)->value('title') }}</td>
 						<td class="right">
 						<form action="{{ route('menus.destroy', $menu->id) }}" method="POST">
 							<input type="hidden" name="_method" value="DELETE">

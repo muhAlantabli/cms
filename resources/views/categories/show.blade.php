@@ -4,11 +4,14 @@
 @section('content')
 	<div class="row">
 		
+		@foreach(App\Language::all() as $language)
 		<div class="col s8">
+			@if($category->languages->find($language->id))
 			<ul class="collapsible" data-collapsible="accordion">
+				
 				<li>
 					<div class="collapsible-header active"><strong>Title</strong></div>
-					<div class="collapsible-body">{{ $category->title }}</div>
+					<div class="collapsible-body">{{ $category->languages->find($language->id)->pivot->title }}</div>
 				</li>
 
 				<li>
@@ -18,10 +21,13 @@
 
 				<li>
 					<div class="collapsible-header"><strong>Description</strong></div>
-					<div class="collapsible-body">{!! $category->desc !!}</div>
+					<div class="collapsible-body">{!! $category->languages->find($language->id)->pivot->desc !!}</div>
 				</li>
+				
 			</ul>
+			@endif
 		</div>
+		@endforeach
 	
 
 	
@@ -68,7 +74,7 @@
 					@foreach($items as $item)
 					<tr>
 						<td>{{ $item->id }}</td>
-						<td><a href="{{ route('items.show', $item->id) }}">{{ $item->title }}</a></td>
+						<td><a href="{{ route('items.show', $item->id) }}">{{ $item->languages()->first()->pivot->title }}</a></td>
 						
 						<td class="right">
 						<form action="{{ route('items.destroy', $item->id) }}" method="POST">
