@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Category;
 use App\Item;
 use DB;
+use App\Comment;
 
 class PageController extends Controller
 {
@@ -15,6 +16,7 @@ class PageController extends Controller
 
         $urls = explode('/', $category_url);
         //return $urls;
+        $comments = Comment::where('item_id', $page->id)->get();
 
         $custom_fields = DB::table('category_custom_field')
             ->select('category_custom_field.id', 'category_custom_field.field_key',
@@ -27,7 +29,7 @@ class PageController extends Controller
             //return $item;
         if($page) {
             
-            return view('pages.page', compact('page', 'custom_fields', 'urls', 'tags'));    
+            return view('pages.page', compact('page', 'custom_fields', 'urls', 'tags', 'comments'));    
         } else {
             return view('pages.blank');
     }

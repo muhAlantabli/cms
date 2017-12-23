@@ -31,7 +31,7 @@
 						<label for="slug">Slug</label>
 																
 					</div>
-				@endif
+				
 				
 				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="parent_id">
@@ -55,7 +55,7 @@
 			        <img src="/images/{{ $category->image }}" height="256" width="256">
 			      </div>
     			</div>
-
+				@endif
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
 					<textarea name="desc_{{ $language->slug }}"" id="desc_{{ $language->slug }}">{{ $category->languages->find($language->id)->pivot->desc or old('desc') }}</textarea>

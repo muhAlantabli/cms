@@ -6,6 +6,8 @@ use App\Category;
 use App\Item;
 use App\Tag;
 use Illuminate\Http\Request;
+use Input;
+use DB;
 
 class TagController extends Controller
 {
@@ -100,9 +102,15 @@ class TagController extends Controller
         return redirect()->route('tags.index');
     }
 
-    public function search($text)
+    public function search(Request $request)
     {
-        $items = Item::where('title', 'like', '%' . $text . '%')->get()->toArray();
+        $text = $request->input('search');
+
+        $items = Item::whereHas('languages', function($query) use ($text) {
+            return $query->where('language_id', session('lang_id'))->where('title', 'like', '%' . $text . '%');
+        })->get()->toArray();
+
+        //$items = Item::where('title', 'like', '%' . $text . '%')->get()->toArray();
         //return $items;
         $itemTags = Item::whereHas('tags', function ($query) use ($text) {
             return $query->where('name', $text);
@@ -112,13 +120,69 @@ class TagController extends Controller
 
         $categoryTags = [];
         foreach (Category::all() as $category) {
-            if ($category->title == $text && count($category->children)) {
+            if($category->languages->find(session('lang_id'))) {
+                    if ($category->languages->find(session('lang_id'))->pivot->title == $text && count($category->children)) {
+                    $categoryTags = $this->getAllItems($category->children, $categoryTags, $text);
+                } elseif ($category->languages->find(session('lang_id'))->pivot->title == $text) {
+                    foreach ($category->items as $item) {
+                        array_push($categoryTags, $item);
+                    }
+                }
+            } else {
+                if ($category->languages->first()->pivot->title == $text && count($category->children)) {
                 $categoryTags = $this->getAllItems($category->children, $categoryTags, $text);
-            } elseif ($category->title == $text) {
+            } elseif ($category->languages->first()->pivot->title == $text) {
                 foreach ($category->items as $item) {
                     array_push($categoryTags, $item);
                 }
             }
+            }
+            
+        }
+
+        $allItems = array_merge($items, $itemTags, $categoryTags);
+        $allItems = collect($allItems)->unique('id');
+
+        //return $allItems;
+        return view('pages.searchResults', compact('allItems'));
+    }
+
+    public function search2($text)
+    {
+        //$text = $request->input('search');
+
+        $items = Item::whereHas('languages', function($query) use ($text) {
+            return $query->where('language_id', session('lang_id'))->where('title', 'like', '%' . $text . '%');
+        })->get()->toArray();
+
+        //$items = Item::where('title', 'like', '%' . $text . '%')->get()->toArray();
+        //return $items;
+        $itemTags = Item::whereHas('tags', function ($query) use ($text) {
+            return $query->where('name', $text);
+        })->get()->toArray();
+
+        //return Category::find(72)->items;
+
+        $categoryTags = [];
+        foreach (Category::all() as $category) {
+            if($category->languages->find(session('lang_id'))) {
+                if ($category->languages->find(session('lang_id'))->pivot->title == $text && count($category->children)) {
+                $categoryTags = $this->getAllItems($category->children, $categoryTags, $text);
+            } elseif ($category->languages->find(session('lang_id'))->pivot->title == $text) {
+                foreach ($category->items as $item) {
+                    array_push($categoryTags, $item);
+                }
+            }
+            } else {
+                if ($category->languages->first()->pivot->title == $text && count($category->children)) {
+                $categoryTags = $this->getAllItems($category->children, $categoryTags, $text);
+            } elseif ($category->languages->first()->pivot->title == $text) {
+                foreach ($category->items as $item) {
+                    array_push($categoryTags, $item);
+                }
+            }
+            }
+            
         }
 
         $allItems = array_merge($items, $itemTags, $categoryTags);

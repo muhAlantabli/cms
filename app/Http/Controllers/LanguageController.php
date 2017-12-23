@@ -95,6 +95,7 @@ class LanguageController extends Controller
         DB::table('category_language')->where('language_id', '=', $id)->delete();
         DB::table('item_language')->where('language_id', '=', $id)->delete();
         DB::table('language_menu')->where('language_id', '=', $id)->delete();
+        DB::table('dictionary')->where('language_id', '=', $id)->delete();
         $language->delete();
 
         return redirect()->route('languages.index');

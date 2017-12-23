@@ -27,6 +27,7 @@
 															
 				</div>
 
+				@if($language->slug == 'en')
 				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="category_id" required>
 				      <option value="" disabled selected>Choose your option</option>
@@ -72,7 +73,8 @@
 					      
 					    </select>
 					</div>
-				</div>				
+				</div>
+				@endif				
 			</div>
 			@endforeach
 			<div style="padding-top: 20px;">

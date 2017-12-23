@@ -26,6 +26,7 @@
 					<label for="title">Title</label>								
 				</div>
 
+				@if($language->slug == 'en')
 				<input type="hidden" name="category_id" value="{{ $category_id }}" >
 
 				<div class="input-field" style="padding-top: 20px;">
@@ -50,6 +51,7 @@
 			        <input class="file-path validate">
 			      </div>
     			</div>
+    			@endif
 
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
@@ -62,7 +64,8 @@
     			</div>
 
 				<input type="hidden" name="length" value="{{ count($custom_fields) }}">
-
+				
+				@if($language->slug == "en")
     			@for($i =0; $i < count($custom_fields); $i++)
 					@if($custom_fields[$i]->type == 'integer')
 						<div class="input-field" style="padding-top: 20px;">
@@ -77,13 +80,6 @@
 							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
 						</div>
 
-					@elseif($custom_fields[$i]->type == 'text')
-						<div style="padding-top: 20px;">
-							<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
-							<label for="custom_field_value{{ $i }}">{{ $custom_fields[$i]->field_key }}</label>
-							<textarea name="custom_field_value_t{{ $i }}" id="custom_field_value{{ $i }}"></textarea>
-		    			</div>
-
 		    		@elseif($custom_fields[$i]->type == 'file')
 		    			<div class="file-field input-field"  style="padding-top: 20px;">
 		    			<input type="hidden" name="field_id{{ $i }}" value="{{ $custom_fields[$i]->id }}" >
@@ -97,7 +93,7 @@
 		    			</div>
 					@endif
     			@endfor
-
+				@endif
 				<div style="padding-top: 20px;">
 					<button type="submit" class="btn waves-effect waves-light large">Submit</button>	
 				</div>
@@ -119,11 +115,9 @@
     <script>
     	
     		@foreach($languages as $l)
-	        CKEDITOR.replace('desc_{{ $l->slug }}');
-	        CKEDITOR.replace('info_{{ $l->slug }}');
-	        
+	        	CKEDITOR.replace('desc_{{ $l->slug }}');
+	        	CKEDITOR.replace('info_{{ $l->slug }}');
         	@endforeach
-        	CKEDITOR.replace('custom_field_value_t');
     </script>
 
 @endsection

@@ -32,7 +32,7 @@
 						<label for="slug">Slug</label>
 																
 					</div>
-				@endif
+				
 
 				<div class="input-field" style="padding-top: 20px;">
 				    <select class="icons" name="parent_id">
@@ -55,7 +55,7 @@
 			        <input class="file-path validate" value="{{ $category->image or old('image') }}">
 			      </div>
     			</div>
-
+				@endif
     			<div style="padding-top: 20px;">
 					<label for="desc">Description</label>
 					<textarea name="desc_{{ $language->slug }}" id="desc_{{ $language->slug }}">{{ $category->desc or old('desc') }}</textarea>

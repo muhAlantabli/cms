@@ -18,7 +18,6 @@
 				      	<option value="" disabled selected>Choose your option</option>
 						<option value="integer">Integer</option>
 						<option value="string">String</option>
-						<option value="text">Text</option>
 						<option value="file">File</option>
 						
 				    </select>

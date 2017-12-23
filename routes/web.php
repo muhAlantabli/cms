@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use App\Category;
 use App\Item;
 use App\Tag;
+use App\Comment;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,9 +23,14 @@ foreach(Language::all() as $language) {
 		Route::get('/', function () use ($language){
 		    session(['slug' => $language->slug ]);
 		    session(['lang_id'=> $language->id]);
+		    session(['dir' => $language->direction]);
 		    //return session('lang_id');
 		    return view('welcome');
 		});
+
+		Route::get('/search', [ 'uses' => 'TagController@search', 'as' => 'search']);
+		Route::get('/search/{text}', 'TagController@search2');
+		Route::get('/comments_save', [ 'uses' => 'CommentController@store', 'as' => 'comment_save']);
 	});
 }
 
@@ -54,10 +60,10 @@ Route::post('/backend/categories/custom_fields', [ 'as' => 'categories.store_cus
 
 Route::delete('/backend/categories/custom_fields/{category_id}/{id}', [ 'as' => 'categories.delete_custom_field' ,function($category_id, $id) {
 	
-	$items = Item::where('category_id', $category_id)->get();
-	foreach($items as $item) {
-		DB::table('custom_field_item')->where('item_id', '=', $item->id)->delete();
-	}
+	//$items = Item::where('category_id', $category_id)->get();
+	//foreach($items as $item) {
+		DB::table('custom_field_item')->where('field_id', '=', $id)->delete();
+	//}
 	DB::table('category_custom_field')->where('id', '=', $id)->delete();
 	return redirect()->route('categories.show', $category_id);
 }]);
@@ -66,15 +72,9 @@ Route::delete('/backend/categories/custom_fields/{category_id}/{id}', [ 'as' => 
 
 
 Route::resource('/backend/items', 'ItemController')->middleware('auth');
-Route::resource('comments', 'CommentController')->middleware('auth');
+Route::resource('comments', 'CommentController');
 Route::resource('tags', 'TagController')->middleware('auth');
-Route::post('/search', [ 'as' => 'search' , function(Request $request) {
-	$text = $request->input('search');
-	return $text;
-	return $this->app->call('App\Http\Controllers\TagController@search', [
-            'text' => $text,
-        ]); 
-}]);
+
 Route::resource('languages', 'LanguageController')->middleware('auth');
 
 Route::get('/languages/translate/{id}', [ 'as' => 'languages.translate' ,function($id) {

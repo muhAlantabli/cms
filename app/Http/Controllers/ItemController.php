@@ -9,6 +9,7 @@ use App\Category;
 use DB;
 use App\Menu;
 use App\Tag;
+use App\Comment;
 
 class ItemController extends Controller
 {
@@ -112,8 +113,8 @@ class ItemController extends Controller
                         'field_id' =>  $request->input('field_id'.$i)
                     ]);
                 } elseif ($request->hasFile('custom_field_value_file'.$i)) {
-                    $file = $request->file('file');
-                    $file_name = time()."-".$image->getClientOriginalExtension();
+                    $file = $request->file('custom_field_value_file'.$i);
+                    $file_name = time()."-".$file->getClientOriginalExtension();
                     $file->move('files', $file_name);
                     DB::table('custom_field_item')->insert([
                         'item_id' => $item->id,
@@ -121,12 +122,6 @@ class ItemController extends Controller
                         'field_id' =>  $request->input('field_id'.$i)
                     ]);
                     
-                } elseif($request->has('custom_field_value_t'.$i)) {
-                    DB::table('custom_field_item')->insert([
-                        'item_id' => $item->id,
-                        'value' => $request->input('custom_field_value_t'.$i),
-                        'field_id' =>  $request->input('field_id'.$i)
-                    ]);
                 }
             }
         }
@@ -160,19 +155,32 @@ class ItemController extends Controller
     {
         $languages = Language::all();
         $categories = Category::all();
-        $category = $item->category_id;
+        $category_id = $item->category_id;
         
+        /*
         $custom_fields = DB::table('category_custom_field')
                     ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                     ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
-                    
-                    ->where(['category_custom_field.category_id' => $item->category_id, 'custom_field_item.item_id' => $item->id])
+                    ->leftjoin('custom_field_item', 'category_custom_field.id', '!=', 'custom_field_item.field_id')
+                    ->where(['category_custom_field.category_id' => $item->category_id])
+
                     ->get();
+                    */
+        $exist = DB::table('custom_field_item')->where('item_id', '=', $item->id)->get();
+        //return $exist;
+        $custom_fields = DB::table('category_custom_field')
+                            ->leftjoin('custom_field_item', function($join) use($exist, $item){
+                                $join->on('category_custom_field.id', '=', 'custom_field_item.field_id')
+                                ->where('custom_field_item.item_id', '=', count($exist) ? $item->id : null);
+                            })
+                            ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
+                            ->get();
+                            
         $title = "Edit Item";
-        //return $custom_field;
+        //return $custom_fields;
         $tags = Tag::all();
 
-        return view('items.edit', compact('languages', 'categories', 'title', 'item', 'category', 'custom_fields', 'tags'));
+        return view('items.edit', compact('languages', 'categories', 'title', 'item', 'category_id', 'custom_fields', 'tags'));
     }
 
     /**
@@ -223,11 +231,11 @@ class ItemController extends Controller
                     ]);
                     }
                     
-                } elseif ($request->hasFile('custom_field_value_file')) {
+                } elseif ($request->hasFile('custom_field_value_file'.$i)) {
                     $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'.$i))->get();
                     if(count($query)) {
-                        $file = $request->file('file');
-                        $file_name = time()."-".$image->getClientOriginalExtension();
+                        $file = $request->file('custom_field_value_file'.$i);
+                        $file_name = time()."-".$file->getClientOriginalExtension();
                         $file->move('files', $file_name);
                         DB::table('custom_field_item')->where('item_id', '=', $item->id)
                         ->where('field_id', '=', $request->input('field_id'.$i))->update([
@@ -236,8 +244,8 @@ class ItemController extends Controller
                             
                         ]);
                     } else {
-                        $file = $request->file('file');
-                        $file_name = time()."-".$image->getClientOriginalExtension();
+                        $file = $request->file('custom_field_value_file'.$i);
+                        $file_name = time()."-".$file->getClientOriginalExtension();
                         $file->move('files', $file_name);
                         DB::table('custom_field_item')->insert([
                             'item_id' => $item->id,
@@ -246,23 +254,6 @@ class ItemController extends Controller
                         ]);
                     }
                     
-                    
-                } elseif($request->has('custom_field_value_t'.$i)) {
-                    $query = DB::table('custom_field_item')->where('field_id', '=', $request->input('field_id'.$i))->get();
-                    if(count($query)) {
-                        DB::table('custom_field_item')->where('item_id', '=', $item->id)
-                        ->where('field_id', '=', $request->input('field_id'.$i))->update([
-                            
-                            'value' => $request->input('custom_field_value_t'.$i),
-                            
-                        ]);
-                    } else {
-                        DB::table('custom_field_item')->insert([
-                            'item_id' => $item->id,
-                            'value' => $request->input('custom_field_value_t'.$i),
-                            'field_id' =>  $request->input('field_id'.$i)
-                        ]);
-                    }
                     
                 }
             }
@@ -286,6 +277,11 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        $comments = Comment::where('item_id', $item->id)->get();
+            foreach($comments as $comment) {
+                $comment->delete();
+        }
+
         DB::table('custom_field_item')->where('item_id', '=', $item->id)->delete();
         $id = $item->category_id;
         $item->languages()->detach();

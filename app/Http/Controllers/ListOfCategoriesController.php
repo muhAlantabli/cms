@@ -11,8 +11,8 @@ class ListOfCategoriesController extends Controller
    	{
    		$urls = explode('/', $page->url);
    		//return $urls;
-
+   		$category_id = $page->id;
    		$categories = Category::where('parent_id', $page->id)->get();
-       	return view('pages.list_of_categories', compact('categories', 'urls'));
+       	return view('pages.list_of_categories', compact('categories', 'urls', 'category_id'));
    	}
 }

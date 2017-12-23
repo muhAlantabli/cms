@@ -25,7 +25,7 @@
 						<td>{{ $comment->name }}</td>
 						<td>{{ $comment->email }}</td>
 						
-						<td>{{ $comment->content }}</td>
+						<td>{!! $comment->content !!}</td>
 						<td class="right"> 
 						<form action="{{ route('comments.destroy', $comment->id) }}" method="POST">
 							<input type="hidden" name="_method" value="DELETE">

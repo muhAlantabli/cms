@@ -12,7 +12,8 @@ class ListOfItemsController extends Controller
    		$urls = explode('/', $page->url);
    		//return $urls;
 
+   		$category_id = $page->id;
    		$items = Item::where('category_id', $page->id)->get();
-        return view('pages.list_of_items', compact('items', 'urls'));
+        return view('pages.list_of_items', compact('items', 'urls', 'category_id'));
    	}
 }

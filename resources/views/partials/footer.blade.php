@@ -1,4 +1,4 @@
 <footer class="center">
 	<hr>
-	Copyright - All Rigths Reserved
+	{{ App\Language::translate('Copyright - All Rigths Reserved') }}
 </footer>

@@ -10,6 +10,7 @@ use DB;
 use Session;
 use App\Menu;
 use Baum\MoveNotPossibleException;
+use App\Comment;
 
 class CategoryController extends Controller
 {
@@ -231,6 +232,10 @@ class CategoryController extends Controller
         $items = Item::where('category_id', $id)->get();
 
         foreach ($items as $item) {
+            $comments = Comment::where('item_id', $item->id)->get();
+            foreach($comments as $comment) {
+                $comment->delete();
+            }
             $item->tags()->detach();
             DB::table('custom_field_item')->where('item_id', '=', $item->id)->delete();
             $item->languages()->detach();

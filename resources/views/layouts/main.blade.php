@@ -1,13 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ session('slug') }}" dir="{{ session('dir') }}">
 
 @include('partials.header')
 
 @include('partials.stylesheet')
 
 <body>
-
-@include('partials.nav')
+<header>
+	@include('partials.nav')	
+</header>
 @include('partials.messages')
 <main>
     @yield('content')

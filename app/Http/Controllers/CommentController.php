@@ -36,7 +36,22 @@ class CommentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //return $request;
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required|email',
+            'content' => 'required'
+        ]);
+
+        $comment = new Comment;
+        $comment->name = $request->input('name');
+        $comment->email = $request->input('email');
+        $comment->content = $request->input('content');
+        $comment->item_id = $request->input('item_id');
+
+        $comment->save();
+
+        return redirect()->back();
     }
 
     /**
@@ -81,6 +96,8 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
-        //
+        $comment->delete();
+
+        return redirect()->route('comments.index');
     }
 }

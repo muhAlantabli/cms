@@ -4,8 +4,9 @@
 @section('content')
 	<div class="row">
 		
-		@foreach(App\Language::all() as $language)
+		
 		<div class="col s8">
+			@foreach(App\Language::all() as $language)
 			@if($category->languages->find($language->id))
 			<ul class="collapsible" data-collapsible="accordion">
 				
@@ -26,8 +27,9 @@
 				
 			</ul>
 			@endif
+			@endforeach
 		</div>
-		@endforeach
+		
 	
 
 	
@@ -57,6 +59,7 @@
           </div>
 		</div>
 	</div>
+</div>
 	<div class="row">
 		<div class="col s8">
 			<a class="waves-effect waves-light btn" href="{{ url('/') }}/backend/items/create/{{ $category->id }}">Create New Item</a>
