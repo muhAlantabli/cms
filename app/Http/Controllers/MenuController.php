@@ -41,6 +41,12 @@ class MenuController extends Controller
      */
     public function create()
     {
+        if(!auth()->user()->canDo('create.menu')) {
+            return redirect()->route('menus.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $categories = Category::all();
         $title = "Create New Menu item";
         $languages = Language::all();
@@ -111,6 +117,12 @@ class MenuController extends Controller
 
     public function edit(Menu $menu)
     {
+        if(!auth()->user()->canDo('edit.menu')) {
+            return redirect()->route('menus.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $categories = Category::all();
         $title = "Edit Menu item";
         $languages = Language::all();
@@ -155,6 +167,12 @@ class MenuController extends Controller
      */
     public function destroy(Menu $menu)
     {
+        if(!auth()->user()->canDo('delete.menus')) {
+            return redirect()->route('menus.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         if($menu->type == "item_per_page" && auth()->user()->type == 'dbentry') {
             return redirect()->route('menus.index')->withErrors([
                 'error' => 'You can not delete item per page type'

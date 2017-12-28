@@ -1,13 +1,12 @@
 @extends('layouts.main')
 
-
 @section('content')
 
 	<div class="container">
 		<div class="row" style="padding-top: 20px;">
 			<nav>
 				<div class="nav-wrapper">
-					<div class="col s12">
+					<div class="colcol s12">
 					        <a href="/{{ session('slug') }}" class="breadcrumb {{ session('dir') == 'ltr' ? 'left' : 'right' }}">{{ App\Language::translate('Home') }}</a>
 					        @foreach($urls as $url)
 					        	@if(DB::table('category_language')->where('language_id', session('lang_id'))->get())
@@ -49,8 +48,8 @@
 
 			@foreach($custom_fields as $custom_field)
 			<div>
-				<label>{{ $custom_field->field_key }}</label>
-				<p>{{ $custom_field->value }}</p>
+				<label>{{ App\Language::translate($custom_field->field_key) }}</label>
+				<p>{{ App\Language::translate($custom_field->value) }}</p>
 			</div>
 			@endforeach
 

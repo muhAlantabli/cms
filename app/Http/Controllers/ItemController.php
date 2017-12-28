@@ -137,6 +137,12 @@ class ItemController extends Controller
      */
     public function show(Item $item)
     {
+        if(!auth()->user()->canDo('show.items')) {
+            return redirect()->route('items.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $custom_fields = DB::table('category_custom_field')
                         ->select('category_custom_field.id', 'category_custom_field.field_key', 'category_custom_field.type', 'custom_field_item.value')
                         ->leftjoin('custom_field_item', 'category_custom_field.id', '=', 'custom_field_item.field_id')
@@ -153,6 +159,12 @@ class ItemController extends Controller
      */
     public function edit(Item $item)
     {
+        if(!auth()->user()->canDo('edit.item')) {
+            return redirect()->route('items.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $languages = Language::all();
         $categories = Category::all();
         $category_id = $item->category_id;
@@ -209,7 +221,7 @@ class ItemController extends Controller
 
         $data = [];
         foreach(Language::all() as $language) {
-            $data[$language->id] = ['title' => $request->input('title_'.$language->slug), 'desc' => $request->input('info_'.$language->slug)];
+            $data[$language->id] = ['title' => $request->input('title_'.$language->slug), 'desc' => $request->input('desc_'.$language->slug), 'info' => $request->input('info_'.$language->slug)];
         }
 
         $item->languages()->sync($data);
@@ -277,10 +289,18 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        if(!auth()->user()->canDo('delete.item')) {
+            return redirect()->route('items.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $comments = Comment::where('item_id', $item->id)->get();
             foreach($comments as $comment) {
                 $comment->delete();
         }
+
+        DB::table('item_tag')->where('item_id', $item->id)->delete();
 
         DB::table('custom_field_item')->where('item_id', '=', $item->id)->delete();
         $id = $item->category_id;

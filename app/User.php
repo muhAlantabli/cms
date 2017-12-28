@@ -4,10 +4,12 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use \YaroslavMolchan\Rbac\Traits\Rbac;
 
 class User extends Authenticatable
 {
     use Notifiable;
+     use Rbac;
     /**
      * The attributes that are mass assignable.
      *
@@ -25,4 +27,9 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function roles()
+    {
+        return $this->belongsToMany('\YaroslavMolchan\Rbac\Models\Role');
+    }
 }

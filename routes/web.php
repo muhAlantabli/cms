@@ -43,7 +43,11 @@ Route::get('/backend', function() {
 Route::resource('/backend/categories', 'CategoryController');
 
 Route::get('/backend/categories/custom_fields/create_custom_field/{id}', [ 'as' => 'categories.create_custom_field' ,function($id) {
-	
+	if(!auth()->user()->canDo('add.extrafield')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
 	return view('custom_fields.create', compact('id'));
 }]);
 
@@ -59,6 +63,11 @@ Route::post('/backend/categories/custom_fields', [ 'as' => 'categories.store_cus
 }]);
 
 Route::delete('/backend/categories/custom_fields/{category_id}/{id}', [ 'as' => 'categories.delete_custom_field' ,function($category_id, $id) {
+	if(!auth()->user()->canDo('delete.extrafield')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
 	
 	//$items = Item::where('category_id', $category_id)->get();
 	//foreach($items as $item) {
@@ -82,6 +91,11 @@ Route::get('/languages/translate/{id}', [ 'as' => 'languages.translate' ,functio
 	}]);
 
 Route::post('/languages/translate_text', [ 'as' => 'languages.store_text' ,function(Request $request) {
+		if(!auth()->user()->canDo('translate.text')) {
+            return redirect()->route('languages.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
 		DB::table('dictionary')->insert([
 			'text' => $request->input('text'),
 			'translated_text' => $request->input('translated_text'),
@@ -92,12 +106,23 @@ Route::post('/languages/translate_text', [ 'as' => 'languages.store_text' ,funct
 	}]);
 
 Route::delete('/delete_text/{language_id}/{id}', function($language_id, $id) {
+	if(!auth()->user()->canDo('delete.text')) {
+            return redirect()->route('languages.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
 	DB::table('dictionary')->where('id', '=', $id)->delete();
 
 	return redirect()->route('languages.show', $language_id);
 });
 
 Route::get('/backend/items/create/{id}', function($id) {
+	if(!auth()->user()->canDo('create.item')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
 	$languages = Language::all();
     $title = "Create Item";
     $category_id = $id;
@@ -111,3 +136,6 @@ Route::resource('/backend/menus', 'MenuController');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::resource('/backend/users', 'UserController')->middleware('auth');
+Route::resource('/backend/roles', 'RoleController')->middleware('auth');
+Route::post('/backend/roles/addpermissions', [ 'as' => 'roles.addpermissions', 'uses' => 'RoleController@addPermissions'])->middleware('auth');

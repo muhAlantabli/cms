@@ -39,7 +39,7 @@
 		</div>
 		<div class="col s4">
 			<div class="card">
-				<h5 class="center" style="padding-top: 20px;">Create New Tag</h5>
+				<h5 class="center" style="padding-top: 20px;">Create New Language</h5>
 				<form action="{{ route('languages.store') }}" method="POST">
 					{{ csrf_field() }}
 					<div class="card-content">

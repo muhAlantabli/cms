@@ -14,6 +14,8 @@ class Language extends Model
 
     public static function translate($text)
     {
+        
+
     	$collection = DB::table('dictionary')->where('text', '=', $text)->where('language_id', '=', session('lang_id'))->get();
     	if(count($collection)) {
     		return $collection[0]->translated_text;

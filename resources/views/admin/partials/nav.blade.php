@@ -17,8 +17,11 @@
         <li>
             <a href="#" class="waves-effect waves-teal">Dashboard</a>
         </li>
-
-        <li><a href="#" class="waves-effect waves-teal">Users</a></li>
+        
+        @if(auth()->user()->type == "admin")
+        <li><a href="{{ route('users.index') }}" class="waves-effect waves-teal">Users</a></li>
+        <li><a href="{{ route('roles.index') }}" class="waves-effect waves-teal">Roles</a></li>
+        @endif
         <li><a href="{{ route('languages.index') }}" class="waves-effect waves-teal">Languages</a></li>
         
         <li class="bold"><a href="{{ route('menus.index') }}" class="waves-effect waves-teal">Menus</a></li>

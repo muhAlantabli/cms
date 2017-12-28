@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "cd5748f767a1f85311e374210c3d255f",
+    "content-hash": "2775c75cca9e84a5ad4271f034950816",
     "packages": [
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -2572,6 +2572,56 @@
                 "environment"
             ],
             "time": "2016-09-01T10:05:43+00:00"
+        },
+        {
+            "name": "yaroslavmolchan/rbac",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/YaroslavMolchan/rbac.git",
+                "reference": "c46416e79d075811eaecbccf1e03ede0b6521346"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/YaroslavMolchan/rbac/zipball/c46416e79d075811eaecbccf1e03ede0b6521346",
+                "reference": "c46416e79d075811eaecbccf1e03ede0b6521346",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "^5.3",
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "YaroslavMolchan\\Rbac\\RbacServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "YaroslavMolchan\\Rbac\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Yaroslav Molchan",
+                    "email": "yaroslav.molchan@gmail.com",
+                    "homepage": "https://molchan.me"
+                }
+            ],
+            "description": "Simple RBAC/ACL for Laravel 5.5 and more with caching and permission groups.",
+            "keywords": [
+                "acl",
+                "laravel",
+                "rbac"
+            ],
+            "time": "2017-09-27T11:51:59+00:00"
         }
     ],
     "packages-dev": [

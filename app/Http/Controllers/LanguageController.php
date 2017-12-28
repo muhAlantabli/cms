@@ -37,6 +37,12 @@ class LanguageController extends Controller
      */
     public function store(Request $request)
     {
+        if(!auth()->user()->canDo('add.language')) {
+            return redirect()->route('languages.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $language = new Language;
         $language->name = $request->input('name');
         $language->direction = $request->input('dir');
@@ -54,6 +60,12 @@ class LanguageController extends Controller
      */
     public function show($id)
     {
+        if(!auth()->user()->canDo('show.category')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $language = Language::find($id);
         $dictionaryTexts = DB::table('dictionary')->where('language_id', '=', $id)->get();
 
@@ -91,6 +103,12 @@ class LanguageController extends Controller
      */
     public function destroy($id)
     {
+        if(!auth()->user()->canDo('delete.language')) {
+            return redirect()->route('languages.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $language = Language::find($id);
         DB::table('category_language')->where('language_id', '=', $id)->delete();
         DB::table('item_language')->where('language_id', '=', $id)->delete();

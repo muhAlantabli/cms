@@ -96,6 +96,13 @@ class CommentController extends Controller
      */
     public function destroy(Comment $comment)
     {
+        if(!auth()->user()->canDo('delete.comment')) {
+            return redirect()->route('comments.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
+
         $comment->delete();
 
         return redirect()->route('comments.index');

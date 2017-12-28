@@ -39,6 +39,12 @@ class TagController extends Controller
      */
     public function store(Request $request)
     {
+        if(!auth()->user()->canDo('add.tag')) {
+            return redirect()->route('tags.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $this->validate($request, [
             'name' => 'unique:tags',
         ]);
@@ -59,6 +65,11 @@ class TagController extends Controller
      */
     public function show(Tag $tag)
     {
+        if(!auth()->user()->canDo('show.tag')) {
+            return redirect()->route('tags.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
         //return $tag->items->get();
         $items = $tag->items;
         return view('tags.show', compact('items', 'tag'));
@@ -95,6 +106,12 @@ class TagController extends Controller
      */
     public function destroy(Tag $tag)
     {
+        if(!auth()->user()->canDo('delete.tag')) {
+            return redirect()->route('tags.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $link_tag = DB::table('link_tag')->where('tag_id', '=', $tag->id)->delete();
 
         $tag->delete();

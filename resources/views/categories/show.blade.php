@@ -93,7 +93,7 @@
 		</table>	
 		</div>
 
-		@if(auth()->user()->type == 'admin')
+		
 			<div class="col s4 offset-s8">
 				<div class="card">
 					<div class="center" style="padding-top: 20px;">
@@ -135,7 +135,7 @@
 		          </div>
 				</div>
 			</div>
-			@endif
+			
 			
 	</div>
 	

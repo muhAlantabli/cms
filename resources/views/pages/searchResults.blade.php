@@ -5,7 +5,7 @@
 		<div class="row" style="padding-top: 20px;">
 		<h5>{{ App\Language::translate('Search Results') }}:</h5>
 		@foreach($allItems as $item)
-		@if({{ DB::table('item_language')->where('item_id', $item['id'])->where('language_id', session('lang_id'))->get())
+		@if(DB::table('item_language')->where('item_id', $item['id'])->where('language_id', session('lang_id'))->get())
 		<div class="col s12 m4 {{ session('dir') == 'ltr' ? 'left' : 'right' }}">
 				<div class="card">
 		            <div class="card-image {{ session('dir') == 'ltr' ? 'left' : 'right' }}">

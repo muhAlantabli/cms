@@ -38,6 +38,12 @@ class CategoryController extends Controller
      */
     public function create()
     {
+        if(!auth()->user()->canDo('create.category')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $title = 'Create New Category';
         $categories = Category::all();
         $languages = Language::all();
@@ -121,6 +127,11 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
+        if(!auth()->user()->canDo('show.category')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
         $category = Category::find($id);
 
         //return $category->languages()->first()->pivot->title;
@@ -137,6 +148,12 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
+        if(!auth()->user()->canDo('edit.category')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
         $category = Category::find($id);
         //return $category;
         $categories = Category::all();
@@ -223,6 +240,13 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
+        if(!auth()->user()->canDo('delete.category')) {
+            return redirect()->route('categories.index')->withErrors([
+                'error' => 'You are not authorize !'
+            ]);
+        }
+
+
         $menu = Menu::where('category_id', $id)->first();
         if($menu) {
             $menu->languages()->detach();
